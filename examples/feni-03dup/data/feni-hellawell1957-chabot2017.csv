@@ -1,0 +1,53 @@
+# Fe-Ni phase-boundary data, Fe-rich corner. x = mole fraction Ni.
+# Load FeNi-03Dup-LB.tdb first. Phase names are that database's: its disordered
+# fcc is A1_FCC.
+#
+# Hellawell1957: A. Hellawell and W. Hume-Rothery, Phil. Trans. R. Soc. A 249
+#   (1957) 417-459, DOI 10.1098/rsta.1957.0004, Figure 12 / Table A6.
+#   Transcribed by PhasesResearchLab/ESPEI-datasets (CC BY 4.0), file
+#   FE-NI-ZPF-BCC_A2-FCC_A1-LIQUID-hellawell1957constitution.json; the rows
+#   below match it value for value. Thermal arrests at the bulk composition. No
+#   uncertainties are given, so x_err and T_err are left to the app's defaults.
+#   The six delta/gamma arrests (x = 0.0184, 0.0279, 0.0376, below the solidus)
+#   carry no phase. ESPEI labels one of each pair BCC_A2 and the other FCC_A1,
+#   but on this side of the diagram the bcc-field boundary lies above the fcc
+#   one at a fixed x, and two of the three labelled pairs are the other way
+#   round (the third is 1 K apart). Without a phase, each is scored against the
+#   nearest boundary.
+#
+# Chabot2017: N.L. Chabot et al., Meteorit. Planet. Sci. 52 (2017) 1133-1145,
+#   DOI 10.1111/maps.12864, Table 1 (open: PMC5606159). Solid-liquid tie-lines
+#   at a nominal 1500 C; x from the measured Fe and Ni wt% only, x_err from the
+#   printed 2-sigma. Not strictly binary (about 25 trace elements at 100-300
+#   ppm), hence weight 0.5. The authors note the compositions look closer to
+#   about 1495 C on earlier diagrams; T is kept at the nominal value.
+#
+x,T,kind,x_err,T_err,phase,weight,source
+0.0184,1797.15,boundary,0,0,LIQUID,1,Hellawell1957
+0.0184,1795.15,boundary,0,0,BCC_A2,1,Hellawell1957
+0.0184,1724.15,boundary,0,0,,1,Hellawell1957
+0.0184,1731.15,boundary,0,0,,1,Hellawell1957
+0.0279,1793.15,boundary,0,0,LIQUID,1,Hellawell1957
+0.0279,1789.15,boundary,0,0,BCC_A2,1,Hellawell1957
+0.0279,1753.15,boundary,0,0,,1,Hellawell1957
+0.0279,1752.15,boundary,0,0,,1,Hellawell1957
+0.0376,1790.15,boundary,0,0,LIQUID,1,Hellawell1957
+0.0376,1784.15,boundary,0,0,BCC_A2,1,Hellawell1957
+0.0376,1773.15,boundary,0,0,,1,Hellawell1957
+0.0376,1776.65,boundary,0,0,,1,Hellawell1957
+0.0462,1786.15,boundary,0,0,LIQUID,1,Hellawell1957
+0.0462,1781.65,boundary,0,0,A1_FCC,1,Hellawell1957
+0.0527,1783.65,boundary,0,0,LIQUID,1,Hellawell1957
+0.0527,1780.15,boundary,0,0,A1_FCC,1,Hellawell1957
+0.0761,1779.65,boundary,0,0,LIQUID,1,Hellawell1957
+0.0761,1774.65,boundary,0,0,A1_FCC,1,Hellawell1957
+0.0895,1773.65,boundary,0,0,LIQUID,1,Hellawell1957
+0.0895,1769.65,boundary,0,0,A1_FCC,1,Hellawell1957
+0.1233,1768.15,boundary,0,0,LIQUID,1,Hellawell1957
+0.1233,1762.15,boundary,0,0,A1_FCC,1,Hellawell1957
+0.092822351,1773.15,tie_left,0.0020185063,0,A1_FCC,0.5,Chabot2017
+0.10457713,1773.15,tie_right,0.0031112564,0,LIQUID,0.5,Chabot2017
+0.098062486,1773.15,tie_left,0.0013199745,0,A1_FCC,0.5,Chabot2017
+0.11469009,1773.15,tie_right,0.0030279485,0,LIQUID,0.5,Chabot2017
+0.10869481,1773.15,tie_left,0.0011697859,0,A1_FCC,0.5,Chabot2017
+0.12232454,1773.15,tie_right,0.0040054523,0,LIQUID,0.5,Chabot2017

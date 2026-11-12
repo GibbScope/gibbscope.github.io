@@ -1,0 +1,63 @@
+[
+  {
+    "id": "agcu-86hay",
+    "label": "Ag–Cu — Hayes 1986",
+    "tdb": "agcu-86hay/AgCu-86Hay.tdb",
+    "data": [
+      "agcu-86hay/data/agcu-heycock1897-subramanian1993-bienzle1992.csv"
+    ],
+    "note": "Ag–Cu has a simple eutectic at 1056 K. The measured points are liquidus temperatures from [Heycock and Neville (1897)](https://doi.org/10.1098/rsta.1897.0002) and six later studies compiled by [Subramanian and Perepezko (1993)](https://doi.org/10.1007/BF02652162), and the Ag-rich solidus and solvus from [Bienzle et al. (1992)](https://doi.org/10.2320/matertrans1989.33.51)."
+  },
+  {
+    "id": "cuni-92mey",
+    "label": "Cu–Ni — an Mey 1992",
+    "tdb": "cuni-92mey/CuNi-92Mey-LB.tdb",
+    "note": "Cu–Ni shows complete solid solubility, with continuous liquidus and solidus curves and no invariant reaction. Below 642 K, the fcc solid solution separates into Cu-rich and Ni-rich phases."
+  },
+  {
+    "id": "crni-16tan",
+    "label": "Cr–Ni — Tang & Hallstedt 2016",
+    "tdb": "crni-16tan/CrNi-16Tan.tdb",
+    "data": ["crni-16tan/data/crni-tang2016-pop.csv"],
+    "note": "Cr–Ni has a eutectic at 1619 K, and CrNi2 forms from fcc and bcc by a peritectoid reaction at 861 K. The small fcc miscibility gap in the Ni-rich corner at low temperature is a Nishizawa horn caused by magnetism (see [Tang and Hallstedt, 2016](https://doi.org/10.1016/j.calphad.2016.10.003)). The measured points are adopted from the same paper, which compiles measurements from the original studies cited therein.",
+    "default": true
+  },
+  {
+    "id": "mgsi-12sch",
+    "label": "Mg–Si — Schick 2012",
+    "tdb": "mgsi-12sch/MgSi-12Sch.tdb",
+    "note": "Mg–Si has the line compound Mg2Si and two eutectics at 910 K and 1212 K."
+  },
+  {
+    "id": "alsi-97feu",
+    "label": "Al–Si — Feufel 1997",
+    "tdb": "alsi-97feu/AlSi-97Feu-LB.tdb",
+    "data": ["alsi-97feu/data/alsi-murray1984.csv"],
+    "note": "Al–Si has a eutectic at 850 K whose Si-rich end lies at the edge of the diagram, because silicon dissolves almost no aluminum. The measured points, from [Murray and McAlister (1984)](https://doi.org/10.1007/BF02868729), include the (Al) solvus and solidus below 1.7 at% Si."
+  },
+  {
+    "id": "bipb-98boa",
+    "label": "Bi–Pb — Boa & Ansara 1998",
+    "tdb": "bipb-98boa/BiPb-98Boa-LB.tdb",
+    "note": "Bi–Pb has a eutectic at 398 K, a peritectic at 457 K, and an intermediate hcp phase with a wide homogeneity range."
+  },
+  {
+    "id": "alzn-93mey",
+    "label": "Al–Zn — an Mey 1993",
+    "tdb": "alzn-93mey/AlZn-93Mey-LB.tdb",
+    "note": "Al–Zn has a eutectic at 654 K and, at lower temperature, an fcc miscibility gap with a critical point at 626 K that ends in a monotectoid at 550 K."
+  },
+  {
+    "id": "cupb-86hay",
+    "label": "Cu–Pb — Hayes 1986",
+    "tdb": "cupb-86hay/CuPb-86Hay-LB.tdb",
+    "note": "Cu–Pb has a miscibility gap in the liquid: between the monotectic at 1230 K and a critical point at 1282 K, the melt separates into Cu-rich and Pb-rich liquids. A eutectic at 599 K lies next to pure Pb."
+  },
+  {
+    "id": "feni-03dup",
+    "label": "Fe–Ni — Dupin 2003",
+    "tdb": "feni-03dup/FeNi-03Dup-LB.tdb",
+    "data": ["feni-03dup/data/feni-hellawell1957-chabot2017.csv"],
+    "note": "The Fe–Ni assessment includes the magnetic contributions of iron and nickel, which produce an fcc miscibility gap ending in a monotectoid at 683 K. GibbScope does not model its ordered FCC_4SL phase. The measured points are the liquidus, solidus, and δ/γ arrests of [Hellawell and Hume-Rothery (1957)](https://doi.org/10.1098/rsta.1957.0004), as transcribed in [ESPEI-datasets](https://github.com/PhasesResearchLab/ESPEI-datasets) (CC BY 4.0), and solid–liquid tie lines at 1500 °C from [Chabot et al. (2017)](https://doi.org/10.1111/maps.12864)."
+  }
+]

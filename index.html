@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GibbScope</title>
+    <!-- Same three colours as the CSS logo, as flat circles. -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%235b23ff'/%3E%3Ccircle cx='11' cy='11' r='9' fill='%23008bff'/%3E%3Ccircle cx='21' cy='21' r='9' fill='%23ff007f'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="style.css">
+    <!-- Page-view counts (GoatCounter). It does not count on localhost. -->
+    <script data-goatcounter="https://gibbscope.goatcounter.com/count"
+            async src="https://gc.zgo.at/count.js"></script>
+</head>
+<body>
+    <!-- Outward-facing URLs. An empty entry is left out of the footer, and an empty
+         paper URL leaves Paper out of the header. Strict JSON. -->
+    <script type="application/json" id="site-links">
+    { "lab":   "https://materials-informatics-az.github.io/",
+      "code":  "https://github.com/GibbScope/gibbscope",
+      "paper": { "url": "https://arxiv.org/abs/2611.12616", "arxiv": "", "doi": "10.48550/arXiv.2611.12616",
+        "bibtex": "@misc{ramachandran2026gibbscope,\n  author        = {Ramachandran, Ramya and Huang, Zhuocheng and Wang, Jiayang and Latypov, Marat I.},\n  title         = {{GibbScope}: interactive calculation and visualization of phase diagrams in the browser},\n  year          = {2026},\n  eprint        = {2611.12616},\n  archivePrefix = {arXiv},\n  url           = {https://arxiv.org/abs/2611.12616}\n}" },
+      "software": { "doi": "", "bibtex": "" },
+      "corpus": {
+        "text": "Hallstedt, \"The SGTE collection of binary datasets\", Calphad (2025).",
+        "doi": "10.1016/j.calphad.2025.102833",
+        "licence": "CC BY 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "bibtex": "@article{Hallstedt2025,\n  author  = {Hallstedt, Bengt},\n  title   = {The {SGTE} collection of binary datasets},\n  journal = {Calphad},\n  year    = {2025},\n  doi     = {10.1016/j.calphad.2025.102833}\n}" } }
+</script>
+
+    <div class="container">
+        <header>
+            <div class="brand">
+                <span class="logo" aria-hidden="true"></span>
+                <h1 id="app-title">GibbScope</h1>
+            </div>
+            <button type="button" class="header-system hidden" id="header-system"
+                    aria-describedby="header-system-hint"></button>
+            <span class="visually-hidden" id="header-system-hint">Open the system picker</span>
+            <nav class="header-nav">
+                <div class="tab-nav" role="tablist" aria-label="View">
+                    <button class="tab active" data-tab="viz" role="tab"
+                            aria-selected="true" aria-controls="tab-viz">Diagram</button>
+                    <button class="tab" data-tab="picker" role="tab"
+                            aria-selected="false" aria-controls="tab-picker">Systems</button>
+                    <button class="tab" data-tab="about" role="tab"
+                            aria-selected="false" aria-controls="tab-about">About</button>
+                </div>
+                <span class="header-sep" aria-hidden="true"></span>
+                <!-- Paper only; the other links are in the footer. -->
+                <div class="site-links" id="site-link-row"></div>
+            </nav>
+        </header>
+
+        <!-- ===== VISUALIZATION TAB ===== -->
+        <main id="tab-viz" class="tab-content active">
+            <div class="content-grid">
+
+                <!-- Left: the phase diagram, with the Gibbs energy curves below it -->
+                <div class="plots-column">
+                    <div class="plots-row">
+                        <div class="visualization-panel">
+                            <div class="plot-toolbar">
+                                <h3 class="panel-title visually-hidden">Phase Diagram</h3>
+                                <div class="toolbar-group">
+                                    <button type="button" class="tool-btn active" id="raster-toggle"
+                                            aria-pressed="true"
+                                            title="Fill each field with its phase color. Off exports a figure that is vector throughout.">Raster</button>
+                                    <button type="button" class="tool-btn active" id="labels-btn"
+                                            aria-pressed="true"
+                                            title="Show phase names inside each field">Labels</button>
+                                    <button type="button" class="tool-btn" id="figure-theme-btn"
+                                            aria-pressed="false"
+                                            title="White ground and dark ink, for a figure going into a paper. The export follows this.">Light figure</button>
+                                    <button type="button" class="tool-btn active hidden"
+                                            id="points-toggle" aria-pressed="true"
+                                            title="Draw the experimental points on the diagram. Hiding them does not change the misfit — untick a source in the data list for that.">Points</button>
+                                </div>
+                                <div class="unit-row">
+                                    <div class="exp-colour-mode hidden" id="exp-colour-mode">
+                                        <button type="button" class="btn small unit-cycle"
+                                                data-colour="source">Color: Source</button>
+                                    </div>
+                                    <div id="temp-units">
+                                        <button type="button" class="btn small unit-cycle"
+                                                data-unit="K">K</button>
+                                    </div>
+                                    <div id="comp-units">
+                                        <button type="button" class="btn small unit-cycle"
+                                                data-unit="x">mol frac</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Keep the keys in this label in step with About's
+                                 keyboard table. -->
+                            <div class="canvas-wrapper">
+                                <canvas id="phase-canvas" tabindex="0"
+                                        aria-label="Phase diagram. While the Gibbs energy curves are open, up and down arrows move the isotherm and Page Up and Page Down move it ten steps; left and right move the crosshair, Home and End send it to the edges; Shift with an arrow pans; plus and minus zoom; 0 resets the view; Escape clears the crosshair."></canvas>
+                                <canvas id="phase-overlay" class="overlay-canvas"></canvas>
+                                <div class="plot-actions">
+                                    <!-- Shown when a solid stays stable above the
+                                         database's declared range. -->
+                                    <button type="button" class="btn small ghost plot-action hidden"
+                                            id="extrapolated-btn">Show extrapolated region</button>
+                                    <button type="button" class="btn small ghost plot-action hidden"
+                                            id="reset-view-btn"
+                                            title="Fit the axes to the diagram (or double-click the plot)">Reset view</button>
+                                </div>
+                            </div>
+                            <div class="gibbs-panel" id="gibbs-panel" data-open="true">
+                                <div class="gibbs-strip">
+                                    <button type="button" id="gibbs-toggle" class="gibbs-toggle"
+                                            aria-expanded="true" aria-controls="gibbs-body temp-control">
+                                        <span class="gibbs-caret" aria-hidden="true">&#x25B8;</span>
+                                        Gibbs energy curves
+                                    </button>
+                                    <div class="temp-control" id="temp-control">
+                                        <label for="temp-slider" class="temp-label">at T</label>
+                                        <span class="temp-end" id="temp-slider-min">298 K</span>
+                                        <div class="temp-track" id="temp-track">
+                                            <input type="range" id="temp-slider" min="298" max="3000"
+                                                   value="1000" step="10">
+                                            <span class="param-value" id="value-temp"
+                                                  role="status" aria-live="polite">1000</span>
+                                        </div>
+                                        <span class="temp-end" id="temp-slider-max">3000 K</span>
+                                    </div>
+                                </div>
+                                <div class="canvas-wrapper" id="gibbs-body">
+                                    <canvas id="boundary-canvas" tabindex="0"
+                                            aria-label="Gibbs energy curves at the current temperature. Up and down arrows change the temperature, Page Up and Page Down by ten steps; left and right move the crosshair, Home and End send it to the edges; Shift with left or right pans; plus and minus zoom the composition axis; 0 resets the view; Escape clears the crosshair."></canvas>
+                                    <canvas id="boundary-overlay" class="overlay-canvas"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Middle: what the app reports about the diagram. Each summary line
+                     is written by the function that builds the body it abridges
+                     (`setStatusBrief`). -->
+                <section class="status-column">
+                    <details class="status-block" id="phase-legend-block" open>
+                        <summary class="status-summary">
+                            <span class="status-name">Phases</span>
+                            <span class="status-brief" id="phase-legend-brief"></span>
+                            <span class="status-brief" id="unnamed-brief"></span>
+                        </summary>
+                        <div class="legend-inline status-body" id="phase-legend"></div>
+                        <!-- Filled by `renderUnnamedKey`. Hovering or focusing an entry
+                             marks its fields on the plot. -->
+                        <div id="unnamed-key" class="unnamed-key" hidden></div>
+                    </details>
+
+                    <details class="status-block" id="invariant-block" open>
+                        <summary class="status-summary">
+                            <span class="status-name">Invariant reactions</span>
+                            <span class="status-brief" id="invariant-brief"></span>
+                        </summary>
+                        <div id="invariant-readout" class="invariant-readout status-body"></div>
+                    </details>
+
+                    <!-- Live goodness-of-fit against loaded experimental data -->
+                    <details id="fit-panel" class="status-block fit-panel hidden" open>
+                        <summary class="status-summary">
+                            <span class="status-name">Fit</span>
+                            <span class="status-brief" id="fit-brief"></span>
+                        </summary>
+                        <div class="status-body">
+                            <div class="fit-headline">
+                                <span class="fit-label">Misfit</span>
+                                <span class="fit-value" id="fit-value">&mdash;</span>
+                                <span class="fit-units">&sigma; (weighted RMS)</span>
+                            </div>
+                            <div class="fit-breakdown" id="fit-breakdown"></div>
+                        </div>
+                    </details>
+
+                    <!-- What the engine could and could not model in this database. -->
+                    <details id="fidelity-panel" class="status-block fidelity-panel hidden">
+                        <summary class="status-summary" id="fidelity-summary"></summary>
+                        <div class="fidelity-body status-body">
+                            <table class="fidelity-table"><tbody id="fidelity-table-body"></tbody></table>
+                            <!-- A div, not a p: the notices below the table are block
+                                 elements. -->
+                            <div class="fidelity-foot" id="fidelity-foot"></div>
+                        </div>
+                    </details>
+
+                    <details class="status-block diagnostics" id="diagnostics">
+                        <summary class="status-summary">
+                            <span class="status-name">Diagnostics</span>
+                            <span class="status-brief" id="diagnostics-brief"></span>
+                        </summary>
+                        <div class="diagnostics-body status-body">
+                            <span class="timing-display" id="timing-bar">&mdash;</span>
+                            <span class="memory-display" id="memory-bar"></span>
+                            <span class="version-display" id="engine-version"></span>
+                        </div>
+                    </details>
+
+                    <!-- The database's own `$` comment block, quoted verbatim. -->
+                    <details id="tdb-notes" class="status-block tdb-notes hidden">
+                        <summary class="status-summary" id="tdb-notes-summary"></summary>
+                        <div class="tdb-notes-body status-body" id="tdb-notes-body"></div>
+                        <div class="tdb-notes-foot" id="tdb-notes-foot"></div>
+                    </details>
+
+                    <details id="export-controls" class="status-block export-controls hidden" open>
+                        <summary class="status-summary">
+                            <span class="status-name">Export</span>
+                            <span class="status-brief">figure · data · session</span>
+                        </summary>
+                        <div class="export-grid status-body">
+                            <div class="export-group">
+                                <button type="button" id="export-svg-btn">Figure (SVG)</button>
+                                <button type="button" id="export-png-btn">Figure (PNG)</button>
+                            </div>
+                            <div class="export-group">
+                                <button type="button" id="export-tdb-btn">Download .tdb</button>
+                                <!-- Always in mole fraction and kelvin, whatever the
+                                     axes show (`boundariesCsv`). -->
+                                <button type="button" id="export-csv-btn">Data (CSV)</button>
+                                <button type="button" id="export-json-btn">Data (JSON)</button>
+                            </div>
+                            <div class="export-group">
+                                <button type="button" id="session-load-btn">Load session</button>
+                                <button type="button" id="session-save-btn">Save session</button>
+                            </div>
+                        </div>
+                        <input type="file" id="session-file-input" accept=".json" style="display:none">
+                        <div id="export-status" class="export-status"></div>
+                    </details>
+                </section>
+
+                <!-- Right: database, experimental data, and parameters -->
+                <section class="control-group">
+
+                    <div class="rail-group">
+                    <!-- Example systems, listed in examples/examples.json -->
+                    <div class="example-picker">
+                        <label class="section-heading" for="example-select">Example system</label>
+                        <select id="example-select"></select>
+                        <div id="example-note" class="example-note"></div>
+                    </div>
+
+                    <!-- TDB file loader -->
+                    <details class="rail-section" id="tdb-section" open>
+                        <summary class="section-heading"><span
+                            class="rail-title">Your database</span><span
+                            class="rail-brief" id="tdb-brief">drop a .tdb to use your own</span></summary>
+                    <div id="tdb-drop-zone" class="tdb-drop-zone">
+                        <span class="drop-icon">&#x2295;</span>
+                        <div class="drop-text">Drop a .tdb file</div>
+                        <!-- The input sits immediately before its label so the
+                             focus ring can be drawn on the label with a sibling
+                             selector; see `.file-input-hidden` in style.css. -->
+                        <div class="drop-sub">or <input type="file" id="tdb-file-input"
+                                    accept=".tdb" class="file-input-hidden"><label
+                                    for="tdb-file-input" class="file-link">browse</label></div>
+                    </div>
+                    <div id="tdb-loaded-bar" class="tdb-loaded-bar hidden">
+                        <div class="tdb-loaded-left">
+                            <span id="tdb-filename" class="tdb-filename"></span>
+                            <span id="tdb-info-text" class="tdb-info-text"></span>
+                        </div>
+                        <button type="button" id="tdb-clear-btn" class="btn small ghost tdb-clear-btn"
+                                title="Unload TDB" aria-label="Unload TDB">&#x2715;</button>
+                    </div>
+                    <div id="tdb-error" class="tdb-error hidden"></div>
+                    </details>
+
+                    <!-- A second assessment, drawn in grey in place of the unperturbed
+                         diagram. -->
+                    <details id="baseline-frame" class="rail-section baseline-frame">
+                        <summary class="section-heading"><span
+                            class="rail-title">Compare with</span><span
+                            class="rail-brief" id="baseline-brief">the ghost is this database, unperturbed</span></summary>
+                        <div class="status-body">
+                            <label class="baseline-label" for="baseline-select">Another assessment of this system</label>
+                            <select id="baseline-select" class="baseline-select">
+                                <option value="">None</option>
+                            </select>
+                            <div id="baseline-drop-zone" class="tdb-drop-zone baseline-drop">
+                                <div class="drop-text">or drop a .tdb file</div>
+                                <div class="drop-sub"><input type="file" id="baseline-file-input"
+                                            accept=".tdb" class="file-input-hidden"><label
+                                            for="baseline-file-input" class="file-link">browse</label></div>
+                            </div>
+                            <div id="baseline-loaded-bar" class="tdb-loaded-bar hidden">
+                                <div class="tdb-loaded-left">
+                                    <span id="baseline-name" class="tdb-filename"></span>
+                                    <span id="baseline-note" class="tdb-info-text"></span>
+                                </div>
+                                <button type="button" id="baseline-clear-btn"
+                                        class="btn small ghost tdb-clear-btn"
+                                        title="Remove the comparison"
+                                        aria-label="Remove the comparison">&#x2715;</button>
+                            </div>
+                            <div id="baseline-error" class="tdb-error hidden"></div>
+                        </div>
+                    </details>
+
+                    </div><!-- /The system -->
+
+                    <div class="rail-group">
+                    <details class="rail-section" id="exp-section">
+                        <summary class="section-heading"><span
+                            class="rail-title">Experimental data</span><span
+                            class="rail-brief" id="exp-brief"></span></summary>
+                    <div id="exp-drop-zone" class="tdb-drop-zone exp-drop-zone">
+                        <span class="drop-icon">&#x2295;</span>
+                        <div class="drop-text">Drop experimental data</div>
+                        <div class="drop-sub">.csv, .json or .pop &mdash; or <input type="file"
+                                    id="exp-file-input" accept=".csv,.tsv,.json,.txt,.pop" multiple
+                                    class="file-input-hidden"><label
+                                    for="exp-file-input" class="file-link">browse</label></div>
+                    </div>
+                    <div id="exp-error" class="tdb-error hidden"></div>
+                    <!-- Data loaded for another pair of elements, set aside until it is
+                         kept or removed. -->
+                    <div id="exp-parked" class="exp-parked hidden" role="status"></div>
+                    <div id="exp-panel" class="exp-panel hidden">
+                        <table class="exp-table"><tbody id="exp-table-body"></tbody></table>
+                        <div class="exp-legend" id="exp-legend"></div>
+                        <button type="button" id="exp-clear-btn" class="btn small ghost exp-clear-btn">Remove all data</button>
+                    </div>
+                    </details>
+
+                    </div><!-- /Measurements -->
+
+                    <div class="rail-group">
+                    <h2 id="sliders-heading" class="section-heading hidden">R-K Parameters</h2>
+
+                    <!-- Dynamic sliders — built from parsed TDB L-params on file load -->
+                    <div id="tdb-param-sliders" class="hidden"></div>
+
+                    <div id="fit-controls" class="fit-controls hidden">
+                        <button type="button" id="fit-btn" class="btn fit-btn">Fit unlocked parameters</button>
+                        <button type="button" id="fit-cancel-btn" class="fit-cancel hidden">Cancel</button>
+                        <div id="fit-status" class="fit-status"></div>
+                        <div id="fit-review" class="fit-review hidden">
+                            <div id="fit-review-text" class="fit-review-text"></div>
+                            <div class="fit-review-actions">
+                                <button type="button" id="fit-accept-btn" class="fit-accept">Accept</button>
+                                <button type="button" id="fit-revert-btn" class="fit-revert">Revert</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="reset-btn" class="hidden">Reset</button>
+                    </div><!-- /The model -->
+                </section>
+
+            </div>
+
+        </main>
+
+        <!-- ===== SYSTEM PICKER TAB =====
+             Built from `corpus/phase-manifest.json` when the tab is first opened. -->
+        <div id="tab-picker" class="tab-content picker-page" role="tabpanel"
+             aria-labelledby="picker-heading">
+            <div class="picker-container">
+                <div class="picker-head">
+                    <div class="picker-title-row">
+                        <h2 id="picker-heading" class="section-heading">Pick a binary system</h2>
+                        <p class="picker-count" id="picker-count"></p>
+                    </div>
+                    <div class="picker-hint-row">
+                        <button type="button" class="picker-chip hidden" id="picker-selection"></button>
+                        <p class="picker-hint" id="picker-hint">
+                            Click an element, then a second one, to load that binary system.
+                        </p>
+                    </div>
+                </div>
+                <p class="picker-status" id="picker-status">Reading the corpus index&hellip;</p>
+                <div class="picker-grid" id="picker-grid" role="group"
+                     aria-label="Periodic table"></div>
+                <ul class="picker-legend" id="picker-legend"></ul>
+            </div>
+
+            <!-- The assessments of the chosen pair, opened under the table. A region,
+                 not a dialog: nothing is inert while it is open. -->
+            <section id="picker-chooser-panel" class="picker-expansion hidden"
+                     role="region" aria-labelledby="picker-chooser-title">
+                <button class="picker-expansion-close" id="picker-chooser-close"
+                        type="button" aria-label="Close the assessment list">&times;</button>
+                <div class="picker-chooser" id="picker-chooser"></div>
+            </section>
+
+            <!-- Below the chooser, so that its links do not sit between the list and
+                 the grid in tab order. -->
+            <p class="picker-credit" id="picker-credit"></p>
+        </div>
+
+        <!-- ===== ABOUT TAB ===== -->
+        <div id="tab-about" class="tab-content about-page"
+             role="tabpanel" aria-labelledby="about-heading">
+            <div class="about-container">
+                <h2 id="about-heading" class="visually-hidden">About this tool</h2>
+
+                <section class="about-section">
+                    <h2>GibbScope Application</h2>
+                    <p>
+                        GibbScope computes a binary phase diagram from a thermodynamic
+                        (<em>.tdb</em>) database and redraws it as the assessed parameters are
+                        changed. It also overlays experimental data on the diagram and fits the
+                        parameters to these data. The engine is written in Rust and compiled to
+                        WebAssembly, so every calculation runs and stays in the browser.
+                    </p>
+                    <p>
+                        A database can be loaded from <span class="ui-name">Example system</span>,
+                        from a file on disk (<span class="ui-name">Drop a .tdb file</span> or
+                        <span class="ui-name">browse</span>), or by choosing a pair of elements in
+                        the <span class="ui-name">Systems</span> tab, which lists every assessment
+                        of that pair in the SGTE collection of binary datasets.
+                    </p>
+                </section>
+
+                <section class="about-section">
+                    <h2>Figures</h2>
+                    <p>
+                        GibbScope plots the phase diagram and, when
+                        <span class="ui-name">Gibbs energy curves</span> is on, the Gibbs energy
+                        curves at a selected temperature below it, on a shared composition axis.
+                        The features of the two plots are as follows.
+                    </p>
+                    <ul class="how-to-list">
+                        <li>
+                            <strong>Isotherm.</strong> The horizontal lime line marks the temperature
+                            at which the energy curves are drawn, and its markers are the
+                            common-tangent compositions at that temperature. It moves with the
+                            <span class="ui-name">at T</span> slider, by clicking or dragging on the
+                            diagram, and with the arrow keys.
+                        </li>
+                        <li>
+                            <strong>Crosshair.</strong> The readout gives x and T under the pointer,
+                            the tie line through that point, and the phase amounts from the lever
+                            rule (in moles). When the pointer is in the same phase field as the
+                            isotherm at that composition, the lower panel highlights the matching
+                            tangent or curve.
+                        </li>
+                        <li>
+                            <strong>Invariant reactions</strong> are solid horizontal lines through
+                            the coexisting compositions. The table beside the figure lists the type,
+                            temperature, and phases of each reaction.
+                        </li>
+                        <li>
+                            <strong>Line styles.</strong> The crosshair, the top of the assessed
+                            range, and the tangents are dashed, whereas boundary curves, invariant
+                            lines, and the isotherm are solid. Once a parameter is changed, the
+                            original diagram is drawn underneath in gray.
+                        </li>
+                        <li>
+                            <strong>Hatching</strong> covers temperatures above the range for which
+                            the database declares its functions, where the diagram is an
+                            extrapolation. When a solid remains stable above that range, a button on
+                            the plot extends the axis to include it.
+                        </li>
+                        <li>
+                            <strong>Fills.</strong> Two-phase fields have muted fills.
+                            <span class="ui-name">Labels</span> writes the phase names into the
+                            fields, and <span class="ui-name">Raster</span> turns the fills on and
+                            off; with the fills off, an exported SVG is fully vector.
+                        </li>
+                        <li>
+                            <strong>Caption.</strong> The caption in the corner names the database
+                            and any phases that are missing or drawn with physics dropped. It is part of
+                            the figure and is therefore included in exports.
+                        </li>
+                        <li>
+                            <strong>Zoom and pan.</strong> Scrolling zooms and dragging pans;
+                            double-clicking or pressing <span class="ui-name">Reset view</span> fits
+                            the axes again. <span class="ui-name">Light figure</span> draws the
+                            figure on a white background for publication.
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="about-section">
+                    <h2>Changing Parameters and Fitting</h2>
+                    <p>
+                        <span class="ui-name">R-K Parameters</span> has one slider for the
+                        <strong>A</strong> coefficient (in J/mol) of each Redlich&ndash;Kister term
+                        and one for the Gibbs energy (in J per formula unit) of each line compound.
+                        Each slider shows the change from the assessed value, so 0 corresponds to
+                        the published database, and <span class="ui-name">Reset</span> returns all
+                        sliders to 0. An interaction slider spans &plusmn;25&nbsp;% of the assessed
+                        coefficient (at least &plusmn;5000&nbsp;J/mol), and a compound slider
+                        spans &plusmn;10&nbsp;000&nbsp;J. An exact value can be typed into the box
+                        beside a slider. The diagram is recomputed in the background, typically
+                        within a second, so the page stays responsive while a slider is dragged.
+                    </p>
+                    <p>
+                        <span class="ui-name">Compare with</span> draws another assessment of the
+                        same system in gray beneath the current one, in place of the original
+                        diagram. The comparison can be a database from the collection or a dropped
+                        <em>.tdb</em> file, and a database that lists the same elements in the
+                        opposite order is mirrored. Loading a comparison closes the energy panel.
+                    </p>
+                    <p>
+                        <span class="ui-name">Drop experimental data</span> loads measured points
+                        from a file in the format described below. The points are drawn with error
+                        bars, and <span class="ui-name">Misfit</span> reports the weighted RMS
+                        distance between the points and the diagram, in units of each point's
+                        uncertainty. <span class="ui-name">Color: Source</span> switches the
+                        coloring of the points between their source and their residual, which
+                        shows the direction in which each point pulls the model.
+                        <span class="ui-name">Points</span> hides the markers without changing the
+                        misfit, whereas unticking a source in the data list removes it from both the
+                        misfit and the fit.
+                    </p>
+                    <p>
+                        Experimental data loaded for one system stays with that system. When
+                        another database is loaded for the same pair, the data is kept; for the same
+                        pair in the opposite order, it is mirrored; and for a different pair, it is
+                        set aside, neither drawn nor scored, until Remove or Keep is chosen.
+                    </p>
+                    <p>
+                        To fit, tick <span class="ui-name">fit</span> beside each parameter to be
+                        freed and press <span class="ui-name">Fit unlocked parameters</span>. A
+                        Nelder&ndash;Mead search then minimizes the misfit over these parameters,
+                        starting from the current slider values and staying within the slider
+                        ranges. The misfit covers the entire temperature range regardless of the
+                        zoom. The result can be reviewed and then kept with
+                        <span class="ui-name">Accept</span> or discarded with
+                        <span class="ui-name">Revert</span>.
+                    </p>
+                </section>
+
+                <section class="about-section" id="about-data-format">
+                    <h2>Experimental Data File</h2>
+                    <p>
+                        GibbScope reads experimental data from <em>.csv</em>, <em>.tsv</em>, or
+                        <em>.json</em> files with a header row and one row per measurement. Columns
+                        can appear in any order, and only <code>x</code> and <code>T</code> are
+                        required. Comma, tab, and semicolon delimiters are detected, and lines
+                        starting with <code>#</code> or <code>$</code> are comments. A row that
+                        cannot be read is reported with its row number and the reason, while the
+                        rest of the file still loads.
+                    </p>
+                    <table class="scale-table">
+                        <thead>
+                            <tr><th>Column</th><th>Meaning</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>x</code> <em>(required)</em></td><td>Mole fraction of the <strong>second</strong> element the database names, e.g., Cu in an Ag&ndash;Cu file. A header of <code>x (at%)</code> or <code>x (wt%)</code> converts the values on import; wt% needs the database loaded first, for the atomic masses. A header of <code>x(Ag)</code> names the element: values for the first element are mirrored onto the second, and an element not in the database is refused. Also accepted: <code>composition</code>, <code>x_B</code>, <code>mole_fraction</code>.</td></tr>
+                            <tr><td><code>T</code> <em>(required)</em></td><td>Temperature in kelvin, or in Celsius with the header <code>T (C)</code> or <code>T_C</code>. Also accepted: <code>temp</code>, <code>temperature</code>.</td></tr>
+                            <tr><td><code>kind</code></td><td>The type of measurement: <code>boundary</code> (default), <code>tie_left</code>, <code>tie_right</code>, <code>invariant</code>, or <code>single_phase</code>. <code>liquidus</code>, <code>solidus</code>, and <code>solvus</code> are read as <code>boundary</code>, and each reaction name in the table below (<code>eutectic</code>, <code>monotectic</code>, <code>metatectic</code>, <code>monotectoid</code>, <code>eutectoid</code>, <code>syntectic</code>, <code>peritectic</code>, <code>peritectoid</code>, <code>polymorphic</code>, <code>allotropic</code>, <code>other</code>) as <code>invariant</code>. The kind sets the marker shape and the misfit row. An <code>invariant</code> point is measured to the composition of the nearest participating phase at the reaction temperature, not to the reaction line, so a thermal arrest recorded at the overall composition of an alloy appears off in <em>x</em> even when its temperature matches.</td></tr>
+                            <tr><td><code>x_err</code></td><td>Uncertainty in composition, in the unit of the <code>x</code> column (e.g., 0.5 under <code>x (at%)</code> is 0.005). It is drawn as an error bar and scales the misfit. Default 0.01. Also accepted: <code>dx</code>, <code>sigma_x</code>.</td></tr>
+                            <tr><td><code>T_err</code></td><td>Uncertainty in temperature. Default 10&nbsp;K. Also accepted: <code>dT</code>, <code>sigma_T</code>.</td></tr>
+                            <tr><td><code>phase</code></td><td>The phase to which the point belongs, e.g., <code>FCC_A1</code>. The point is then scored against that phase only.</td></tr>
+                            <tr><td><code>weight</code></td><td>Relative weight in the misfit. Default 1.</td></tr>
+                            <tr><td><code>source</code></td><td>Dataset label, used for colors and for showing or hiding points, so that one file can hold several studies. Default: the file name.</td></tr>
+                        </tbody>
+                    </table>
+                    <pre class="mono data-format-sample"># Ag-Cu, digitized from Smith 1985
+x,T,kind,x_err,T_err,phase,source
+0.399,1052.2,invariant,0.005,1.0,LIQUID,Smith 1985
+0.141,1052.2,tie_left,0.006,1.0,FCC_A1,Smith 1985
+0.950,1052.2,tie_right,0.006,1.0,FCC_A1,Smith 1985</pre>
+                    <p>
+                        A JSON file holds the same records, either as an array or as
+                        <code>{"points": [&hellip;]}</code>.
+                    </p>
+                    <h3>Thermo-Calc <code>.pop</code></h3>
+                    <p>
+                        GibbScope reads a PARROT <code>.pop</code> file directly. Load the
+                        database first: the element names and phase abbreviations in the file are
+                        matched against it, so <code>X(FCC,CR)</code> becomes x(Ni) on a
+                        Cr&ndash;Ni axis and <code>LIQ</code> becomes <code>LIQUID</code>. Rows of
+                        <code>TABLE-HEAD</code> blocks that give one composition and one
+                        temperature become points, with the <code>:&sigma;</code> value as the
+                        error bar and the <code>SET-WEIGHT</code> lines providing the weights and,
+                        through their trailing comments, the sources.
+                    </p>
+                    <p>
+                        Everything else is refused with a reason and line numbers. In a typical
+                        PARROT file, this is most of the file, since enthalpies (<code>HMR</code>),
+                        activities (<code>ACR</code>), and chemical potentials are not points on a
+                        phase diagram.
+                    </p>
+                    <h3>ESPEI <code>ZPF</code> datasets</h3>
+                    <p>
+                        ESPEI datasets with <code>output</code> <code>ZPF</code> are also read
+                        directly, again with the database loaded first. In each
+                        <code>values</code> row, a single measured composition is a boundary point,
+                        and two measured compositions are the ends of a tie line; a
+                        <code>null</code> marks a phase that was present but not measured. The
+                        dataset's <code>reference</code> becomes the source and its
+                        <code>weight</code> the weight. Since ZPF datasets carry no uncertainties,
+                        the defaults (0.01 and 10&nbsp;K) apply. Other outputs, such as
+                        <code>HM_FORM</code> and <code>HM_MIX</code>, are refused, as is a dataset
+                        marked <code>disabled</code>, and a phase name that is not in the database
+                        is reported.
+                    </p>
+                    <p>
+                        Thermo-Calc <code>.EXP</code> (DATAPLOT) is not read and has to be converted
+                        to the columns above.
+                    </p>
+                </section>
+
+                <section class="about-section">
+                    <h2>Exporting and Sharing</h2>
+                    <ul class="how-to-list">
+                        <li>
+                            <span class="ui-name">Figure (PNG)</span> and
+                            <span class="ui-name">Figure (SVG)</span> save the figure as shown on
+                            screen, including the caption.
+                        </li>
+                        <li>
+                            <span class="ui-name">Data (CSV)</span> saves the boundary curves, and
+                            <span class="ui-name">Data (JSON)</span> also saves the invariant
+                            reactions, the phase changes that the engine could not classify, and the
+                            provenance. Both use mole fraction and kelvin, whatever units the axes
+                            show.
+                        </li>
+                        <li>
+                            <span class="ui-name">Download .tdb</span> saves the database with the
+                            changed parameters; all other parameters are copied byte for byte.
+                        </li>
+                        <li>
+                            <span class="ui-name">Save session</span> and
+                            <span class="ui-name">Load session</span> store and restore the
+                            parameters, the set of unlocked parameters, the view, the temperature, and
+                            the experimental data. A session does not include the database, so the
+                            database has to be loaded before the session.
+                        </li>
+                        <li>
+                            <span class="ui-name">Cite</span> gives the citations for GibbScope and its
+                            paper. The databases and experimental data that GibbScope uses are
+                            credited in Acknowledgments below.
+                        </li>
+                    </ul>
+                    <p>
+                        The address bar records the current view, so a copied link reproduces it.
+                        Experimental data is not part of the link; a session file stores it.
+                    </p>
+                </section>
+
+                <section class="about-section">
+                    <h2>Keyboard Shortcuts</h2>
+                    <p>
+                        After clicking a plot or moving to it with Tab, the following keys are
+                        available.
+                    </p>
+                    <table class="scale-table">
+                        <thead>
+                            <tr><th>Key</th><th>Action</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>&uarr; &darr;</td><td>move the isotherm one slider step (energy panel open)</td></tr>
+                            <tr><td>Page&nbsp;Up / Page&nbsp;Down</td><td>move it ten steps</td></tr>
+                            <tr><td>&larr; &rarr;</td><td>move the crosshair along the isotherm by 1&nbsp;% of the visible range</td></tr>
+                            <tr><td>Home / End</td><td>move the crosshair to the edge of the window</td></tr>
+                            <tr><td>Shift + arrow</td><td>pan</td></tr>
+                            <tr><td>+ / &minus;</td><td>zoom about the crosshair, or the center of the window</td></tr>
+                            <tr><td>0</td><td>reset the view</td></tr>
+                            <tr><td>Escape</td><td>clear the crosshair</td></tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        With the energy panel closed, the temperature cannot be changed: the slider
+                        and the isotherm are hidden, and &uarr; / &darr; scroll the page.
+                    </p>
+                </section>
+
+                <section class="about-section">
+                    <h2>Thermodynamic Model</h2>
+                    <p>
+                        Each solution phase &phi; is a substitutional solution of the two elements,
+                        described by SGTE unary reference energies, a Redlich&ndash;Kister excess
+                        term, and the Inden&ndash;Hillert&ndash;Jarl magnetic term:
+                    </p>
+                    <div class="equation-box">
+                        G<sub>&phi;</sub>(x,T) = x<sub>A</sub>&thinsp;&deg;G<sub>A</sub><sup>&phi;</sup>
+                            + x<sub>B</sub>&thinsp;&deg;G<sub>B</sub><sup>&phi;</sup>
+                            + RT(x<sub>A</sub>ln x<sub>A</sub> + x<sub>B</sub>ln x<sub>B</sub>)
+                            + x<sub>A</sub>x<sub>B</sub>&thinsp;&Sigma;<sub>&nu;</sub>&thinsp;L<sub>&nu;</sub><sup>&phi;</sup>(x<sub>A</sub>&minus;x<sub>B</sub>)<sup>&nu;</sup>
+                            + G<sup>mag</sup><sub>&phi;</sub>(x,T)
+                    </div>
+                    <p>
+                        A and B are the two elements in alphabetical order, regardless of the
+                        order in which a parameter is written. This order sets the sign of the
+                        odd-order terms and follows the convention of pycalphad and Thermo-Calc. A
+                        line compound has a fixed composition and a single Gibbs energy per formula
+                        unit.
+                    </p>
+                    <p>
+                        At each temperature, GibbScope constructs the lower convex hull of the G(x)
+                        curves of all phases, each solution phase sampled at 1001 compositions and
+                        refined around common tangents. It scans the temperature range in 200 equal
+                        steps and, wherever the set of stable phases changes within a step, bisects
+                        the step to 0.5&nbsp;K and reports an invariant reaction. The temperature axis
+                        extends from the bottom of the database's declared range to just above the
+                        highest temperature at which a solid is stable within that range.
+                    </p>
+                    <p>
+                        A reaction is named after the phase that disappears or forms on cooling and
+                        the two phases on either side of it. L stands for any phase that the
+                        database calls a liquid, and a subscript marks one phase at two
+                        compositions. A reaction is tagged <em>extrapolated</em> when one of its
+                        phases is beyond the temperature range declared for it in the database.
+                    </p>
+                    <table class="scale-table" id="about-reactions">
+                        <thead>
+                            <tr><th>Name</th><th>On cooling</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>eutectic</td><td>L &rarr; &alpha; + &beta;</td></tr>
+                            <tr><td>monotectic</td><td>L<sub>1</sub> &rarr; &alpha; + L<sub>2</sub></td></tr>
+                            <tr><td>metatectic</td><td>&beta; &rarr; &alpha; + L</td></tr>
+                            <tr><td>monotectoid</td><td>&alpha;<sub>1</sub> &rarr; &alpha;<sub>2</sub> + &beta;</td></tr>
+                            <tr><td>eutectoid</td><td>&gamma; &rarr; &alpha; + &beta;</td></tr>
+                            <tr><td>syntectic</td><td>L<sub>1</sub> + L<sub>2</sub> &rarr; &alpha;</td></tr>
+                            <tr><td>peritectic</td><td>L + &alpha; &rarr; &beta;</td></tr>
+                            <tr><td>peritectoid</td><td>&alpha; + &beta; &rarr; &gamma;</td></tr>
+                            <tr><td>polymorphic</td><td>a compound changes its structure at a fixed composition, between two neighboring phases</td></tr>
+                            <tr><td>allotropic</td><td>an element changes its structure at the edge of the axis, and neither form dissolves more of the other element than the other form does. Otherwise, the reaction takes one of the names above; e.g., in Ga&ndash;Pu, the &beta; &rarr; &alpha; transformation of plutonium is a peritectoid because only &alpha; dissolves gallium</td></tr>
+                            <tr><td>other</td><td>none of the above, such as a liquid forming on cooling. Such a reaction is often, but not always, an extrapolation, so its tag is worth checking</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section class="about-section">
+                    <h2>Phase Grades</h2>
+                    <p>
+                        GibbScope grades every phase declared in a database, and a database takes
+                        the grade of its worst phase. The grade appears in the figure caption, in
+                        the fidelity panel, and in the <span class="ui-name">Systems</span> table.
+                    </p>
+                    <ul class="how-to-list">
+                        <li><strong>Modeled in full</strong>: every term given in the database is
+                            evaluated.</li>
+                        <li><strong>Physics dropped</strong>: the phase is drawn without a term given in
+                            the database. Since the diagram still looks complete, this grade
+                            deserves the most attention.</li>
+                        <li><strong>Phase missing</strong>: the phase is left off the diagram and so its
+                            field is absent.</li>
+                    </ul>
+                    <p>A phase is drawn with physics dropped for one of the following reasons.</p>
+                    <table class="scale-table">
+                        <thead>
+                            <tr><th>Reason</th><th>What is missing</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>associate species</td><td>a compound species, such as an associate. The phase is computed as a plain substitutional solution without it</td></tr>
+                            <tr><td>unreadable terms</td><td>part of the phase's energy, given in a form that the parser does not implement or as a call to a function that the database does not define</td></tr>
+                            <tr><td>parameter type</td><td>a <code>PARAMETER</code> type that the engine does not implement. At present, this is the third-generation Einstein heat capacity (<code>THETA</code>, <code>LNTHETA<i>n</i></code>, <code>THETAF<i>n</i></code>, <code>GD</code>), which carries most of the phase's temperature dependence</td></tr>
+                            <tr><td>magnetic setup</td><td>magnetic data that cannot be evaluated: a Curie temperature without a <code>MAGNETIC</code> type definition, a third-generation N&eacute;el model, or a parameter given twice</td></tr>
+                        </tbody>
+                    </table>
+                    <p>A phase is left off the diagram for one of the following reasons.</p>
+                    <table class="scale-table">
+                        <thead>
+                            <tr><th>Reason</th><th>Why</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>gas</td><td>the engine does not model a gas phase</td></tr>
+                            <tr><td>multiple sublattices</td><td>the phase requires the compound energy formalism. This includes ordered phases such as B2_BCC and L12_FCC, and the ionic liquid</td></tr>
+                            <tr><td>interstitial sublattice</td><td>the phase mixes an element with vacancies on a separate sublattice, which two mole fractions cannot describe</td></tr>
+                            <tr><td>non-element species</td><td>the constituents of the phase are not the two elements, so its composition is not a mole fraction of them</td></tr>
+                            <tr><td>no end members</td><td>the database does not give the Gibbs energy of the phase at both pure elements</td></tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        Phases that the database excludes with <code>REJECT_PHASE</code> are listed
+                        separately. A term that the engine cannot evaluate is always reported and
+                        never treated as zero.
+                    </p>
+                </section>
+
+                <section class="about-section">
+                    <h2>Accuracy and Limitations</h2>
+                    <p>The known limitations are as follows.</p>
+                    <ul class="how-to-list">
+                        <li>
+                            <strong>Binary substitutional models only.</strong> GibbScope does not
+                            implement the compound energy formalism or order&ndash;disorder models,
+                            the ionic liquid, or the gas phase, and phases that need them are left
+                            off the diagram. Associate species and third-generation parameters are
+                            left out, and the phases that have them are drawn with physics dropped.
+                        </li>
+                        <li>
+                            <strong>Narrow miscibility gaps.</strong> A gap narrower than 0.004 in x
+                            is drawn as one phase. A gap that closes gradually is therefore cut
+                            below its true top, and its critical point is drawn at the cut and
+                            marked &ldquo;narrowed below&rdquo; in Data (JSON).
+                        </li>
+                        <li>
+                            <strong>Thin fields.</strong> A phase field narrower in temperature than
+                            one sweep step can be missed. Tie line ends agree with Thermo-Calc to
+                            within 7.8&times;10<sup>&minus;7</sup> in x, and a solubility below
+                            10<sup>&minus;8</sup> reads as 10<sup>&minus;8</sup> or as 0.
+                        </li>
+                        <li>
+                            <strong>Many fields of one phase.</strong> The fourth and later fields of
+                            the same phase share one shade and the bare phase name, so a gap between
+                            two of them can look like a gap within a single field.
+                        </li>
+                        <li>
+                            <strong>Unnamed changes.</strong> When two reactions fall within one
+                            temperature bracket, the engine cannot name them and lists the change as
+                            a warning. This is rare.
+                        </li>
+                        <li>
+                            <strong>Fitting is geometric.</strong> The misfit is a distance in units
+                            of each point's uncertainty, and <code>tie_left</code> and
+                            <code>tie_right</code> points are scored in the same way as
+                            <code>boundary</code> points. GibbScope offers neither a driving-force
+                            (ZPF) objective nor uncertainty estimates for the fitted parameters; a
+                            full assessment calls for PARROT or ESPEI.
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- The footer's License and the Cite popover open About here. -->
+                <section class="about-section" id="about-acknowledgments">
+                    <h2 tabindex="-1">Acknowledgments</h2>
+                    <h3>SGTE binary databases</h3>
+                    <!-- `renderCorpusCredit` writes the citation and the licence
+                         after this prefix, from #site-links. -->
+                    <p class="about-credit" id="about-credit"
+                       data-prefix="The preloaded examples and assessments in the Systems tab are from "></p>
+                    <p>
+                        Each file begins with a <code>$</code> comment block that gives the
+                        reference for the assessment and often the assessor's notes on it, such
+                        as &ldquo;the hcp interaction could be problematic&rdquo;. GibbScope shows
+                        these lines in the <span class="ui-name">Database</span> section of the
+                        interface.
+                    </p>
+                    <h3>Experimental data</h3>
+                    <p>
+                        The experimental data loaded with four of the preloaded examples are
+                        from the following sources.
+                    </p>
+                    <ul class="how-to-list about-data-credits">
+                        <li>
+                            <strong>Cr&ndash;Ni</strong>: adopted from Tang and Hallstedt
+                            (<a href="https://doi.org/10.1016/j.calphad.2016.10.003" target="_blank"
+                                rel="noopener">Calphad 55, 2016</a>), which compiles measurements
+                            from the original studies cited therein.
+                        </li>
+                        <li>
+                            <strong>Ag&ndash;Cu</strong>: liquidus temperatures from Heycock and
+                            Neville (<a href="https://doi.org/10.1098/rsta.1897.0002"
+                                target="_blank" rel="noopener">Phil. Trans. R. Soc. A 189,
+                                1897</a>) and from six thermal-analysis studies compiled by
+                            Subramanian and Perepezko
+                            (<a href="https://doi.org/10.1007/BF02652162" target="_blank"
+                                rel="noopener">J. Phase Equilib. 14, 1993</a>), which cites the
+                            original studies; the Ag-rich solidus and solvus from Bienzle et al.
+                            (<a href="https://doi.org/10.2320/matertrans1989.33.51"
+                                target="_blank" rel="noopener">Mater. Trans. JIM 33, 1992</a>).
+                        </li>
+                        <li>
+                            <strong>Fe&ndash;Ni</strong>: liquidus, solidus, and &delta;/&gamma;
+                            arrests from Hellawell and Hume-Rothery
+                            (<a href="https://doi.org/10.1098/rsta.1957.0004" target="_blank"
+                                rel="noopener">Phil. Trans. R. Soc. A 249, 1957</a>), as
+                            transcribed in
+                            <a href="https://github.com/PhasesResearchLab/ESPEI-datasets"
+                               target="_blank" rel="noopener">ESPEI-datasets</a> (CC BY 4.0, with the
+                            phase names changed to those of the database),
+                            and solid&ndash;liquid tie lines at 1500&nbsp;&deg;C from Chabot et
+                            al. (<a href="https://doi.org/10.1111/maps.12864" target="_blank"
+                                rel="noopener">Meteorit. Planet. Sci. 52, 2017</a>).
+                        </li>
+                        <li>
+                            <strong>Al&ndash;Si</strong>: adopted from Murray and McAlister
+                            (<a href="https://doi.org/10.1007/BF02868729" target="_blank"
+                                rel="noopener">Bull. Alloy Phase Diagrams 5, 1984</a>), which
+                            compiles measurements from the original studies cited therein.
+                        </li>
+                    </ul>
+                    <p>
+                        The header of each data file lists the tables the points were taken
+                        from and the points that were left out.
+                    </p>
+                </section>
+
+                <section class="about-section" id="about-license">
+                    <h2>License</h2>
+                    <!-- The contact URL is hard-coded, not read from #site-links,
+                         so it cannot drop out with an empty field. -->
+                    <p>
+                        <strong>Application code</strong> &copy; 2026 Arizona Board of Regents
+                        on behalf of the University of Arizona. Licensed for non-commercial
+                        educational and research use only; commercial use requires a license from
+                        the University &mdash; inquiries to
+                        <a href="https://techlaunch.arizona.edu" target="_blank"
+                           rel="noopener">Tech Launch Arizona</a>.
+                        This is a summary; see the full <code>LICENSE</code> in the repository.
+                    </p>
+                    <p>
+                        The WebAssembly module contains open-source Rust libraries under
+                        permissive licenses, mostly MIT and Apache 2.0. Their notices are in
+                        <a href="corpus/LICENSES.md" target="_blank" rel="noopener">LICENSES.md</a>.
+                    </p>
+                    <p class="about-build-version mono" id="about-build-version"></p>
+                </section>
+
+            </div>
+        </div>
+
+        <!-- Outside the tabs, so that the CC BY attribution is reachable from every
+             view. `renderFooter` rebuilds only `#footer-line`, so the Cite popover sits
+             outside it. -->
+        <footer class="site-footer" id="site-footer">
+            <div class="footer-line" id="footer-line">
+                <a class="footer-lab" id="footer-lab" target="_blank"
+                   rel="noopener">Materials Informatics Lab</a>
+                <span class="sep" aria-hidden="true">·</span>
+                <span>University of Arizona</span>
+                <!-- Paper, arXiv, and Code are inserted before this anchor by
+                     `renderFooter`; an entry with no URL is left out. -->
+                <span class="sep" aria-hidden="true" id="footer-refs-end">·</span>
+                <!-- Opens About at the databases' CC BY credit, with the software
+                     licence below it. -->
+                <button type="button" class="footer-link" id="license-btn">License</button>
+                <span class="sep" aria-hidden="true">·</span>
+                <button type="button" class="footer-link" id="cite-btn"
+                        aria-expanded="false" aria-controls="cite-popover">Cite</button>
+            </div>
+            <div class="cite-popover hidden" id="cite-popover" role="dialog"
+                 tabindex="-1" aria-label="How to cite"></div>
+        </footer>
+    </div>
+
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <!-- Covers the whole page while a database is being loaded. -->
+    <div id="load-overlay" class="loader hidden" role="status" aria-live="polite">
+        <div class="loader-card">
+            <div class="loader-title" id="load-overlay-title"></div>
+            <!-- Indeterminate: the engine reports no progress. -->
+            <div class="progress progress-indeterminate">
+                <div class="progress-bar"></div>
+            </div>
+            <div class="progress-label" id="load-overlay-label"></div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

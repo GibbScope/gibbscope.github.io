@@ -1,0 +1,2824 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Chrome colours, shared with the Neural EBSD Explorer. palette.js reads
+       them, so a re-theme is a change here only. */
+    --bg:        #202428;
+    --surface:   #2a2f35;
+    --surface-2: #31373e;
+    --border:    #3a4048;
+    --primary:   #008bff;
+    --secondary: #ff007f;
+    --tertiary:  #5b23ff;
+    --highlight: #e3ff30;
+    /* The one caution colour: errors, destructive hovers, approximated phases.
+       It is not --highlight, which marks only values that change under the
+       reader's hand (the misfit, the hover readout, the isotherm). */
+    --warn:      #ff007f;
+    /* Two blues for two contrast bars. --primary is never text: it is for
+       borders, rings, thumbs and fills, which need 3:1, and as text it fails
+       4.5:1 on a panel. --link is only text (5.8:1 on a panel). */
+    --link:      #5ab0ff;
+    --text:      #e8eaed;
+    --text-dim:  #9aa0a6;
+
+    /* Keyboard focus ring. Hueless, so it can never be mistaken for a phase
+       colour, and not --highlight, which marks the isotherm. outline-offset
+       puts it outside the canvas, on the card, so it never lands on the white
+       of a light figure. */
+    --focus:     #e8eaed;
+
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+    /* Type scale: five steps with a 12 px floor. --fs-display is the misfit
+       alone. The figure does not use the scale; app.js sets the canvas fonts,
+       which are written into exported SVGs. */
+    --fs-caption: 12px;
+    --fs-body:    13px;
+    --fs-lead:    15px;
+    --fs-title:   20px;
+    --fs-display: 28px;
+
+    /* Corner radii, chosen by what the corner belongs to. 50% means a circle
+       and is not a step. */
+    --radius-sm: 4px;   /* controls: buttons, pills, inputs, swatches, canvases */
+    --radius-md: 8px;   /* a well or a panel nested inside a card */
+    --radius-lg: 12px;  /* the cards themselves */
+
+    /* There is deliberately no prefers-color-scheme: the chrome is always
+       dark, and only the figure has a light theme, for publication. If one is
+       ever added, the --fig-* tokens must keep following the figure's theme,
+       not the system's. */
+
+    /* The figure's colours. palette.js reads them off the plot card rather
+       than :root, so .fig-light on the card re-themes the figure and its export
+       while the chrome stays dark. By default they are the chrome tokens. */
+    --fig-bg:           var(--bg);
+    --fig-surface:      var(--surface);
+    --fig-border:       var(--border);
+    --fig-text:         var(--text);
+    --fig-text-dim:     var(--text-dim);
+    /* The Compare-with ghost. Lighter than --fig-text-dim so it holds 3:1
+       over every fill it crosses, the miscibility-gap fill included. */
+    --fig-ghost:        #b0b6bc;
+    --fig-highlight:    var(--highlight);
+
+    /* Drawn under boundary curves and region labels so they stay legible
+       where they cross curves, the isotherm and experimental markers. It must
+       oppose the ground. */
+    --fig-casing:       rgba(0, 0, 0, 0.40);
+
+    /* Which way a phase's second composition set is shifted: lighter on a
+       dark ground, darker on white. */
+    --fig-set-shift:     #ffffff;
+    --fig-set-shift-alt: #000000;
+
+    /* How far a textured coexistence field is carried toward its left-hand
+       phase's hue, under the dot lattice that carries the right-hand one. Set
+       per theme so that, after RASTER_FILL_ALPHA, the weakest hue still stands
+       more than 10/255 off the ground. */
+    --fig-coex-wash: 0.43;
+
+    /* Experimental datasets, in load order. A hueless lightness ramp: hue
+       means a phase, and marker shape already gives the datum kind. -other
+       covers every dataset past the third. #a7a7a7 is the darkest grey that
+       holds 3:1 against every phase fill. With boundaries off the raster is at
+       full alpha and only -1 holds 3:1; the 2 px surface ring on each marker
+       separates the others there. */
+    --fig-exp-1:        #ffffff;
+    --fig-exp-2:        #e1e1e1;
+    --fig-exp-3:        #c4c4c4;
+    --fig-exp-other:    #a7a7a7;
+
+    --fig-residual-low:  #5ab0ff;
+    --fig-residual-mid:  #9aa0a6;
+    --fig-residual-high: #ff5a7a;
+}
+
+/* Publication theme: white ground, near-black ink, pale fills. Applied to the
+   plot card, never to :root, because the rail is not what gets published. */
+.fig-light {
+    --fig-bg:           #ffffff;
+    --fig-surface:      #ffffff;
+    --fig-border:       #1a1d21;
+    --fig-text:         #101418;
+    --fig-text-dim:     #4a545e;
+    /* About the contrast of the figure's own curves (4.0:1), so the reference
+       does not outweigh the model. */
+    --fig-ghost:        #6b7580;
+    /* Stronger than the dark theme's: here it separates dark text from a pale
+       ground. */
+    --fig-casing:       rgba(255, 255, 255, 0.60);
+
+    /* The live mark on white, where the lime is invisible. It misses the CVD
+       floor of 8, at 7.2, the one deliberate exception; palette.js explains it
+       above PHASE_SERIES. */
+    --fig-highlight:    #920afc;
+
+    --fig-set-shift:     #000000;
+    --fig-set-shift-alt: #ffffff;
+
+    /* Lower than the dark theme's 0.43: the phase hues sit further from
+       white, and a published diagram leaves coexistence fields near-white. */
+    --fig-coex-wash: 0.30;
+
+    /* --primary is only 3.4:1 on white; this blue is 5.75:1. */
+    --focus:            #1565c0;
+
+    /* The same ramp reversed, darker than the ground and anchored on black,
+       as print draws data. Fills on white come out darker than the surface, so
+       the ramp can run down to #6e6e6e. */
+    --fig-exp-1:        #000000;
+    --fig-exp-2:        #2a2a2a;
+    --fig-exp-3:        #4b4b4b;
+    --fig-exp-other:    #6e6e6e;
+
+    --fig-residual-low:  #1565c0;
+    --fig-residual-mid:  #6b7280;
+    --fig-residual-high: #c62828;
+}
+
+body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* One focus ring for the whole app. :focus-visible, so a clicked button shows
+   none. Do not remove outlines elsewhere; the range slider is the keyboard route
+   to the temperature. */
+:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+}
+
+/* Fallback for any link outside the containers that colour their own: the
+   user-agent blue is unreadable on this ground. */
+a {
+    color: var(--link);
+    text-decoration-color: color-mix(in srgb, var(--link) 45%, transparent);
+    text-underline-offset: 2px;
+}
+
+a:hover { color: #8cc8ff; text-decoration-color: currentColor; }
+a:visited { color: var(--link); }
+
+/* Numbers stay monospaced so columns line up; prose gets the sans face. */
+.timing-display, .memory-display, .param-value,
+.fit-value, .fit-breakdown, .exp-count, .invariant-readout,
+.fit-review-text, .mono {
+    font-family: var(--mono);
+}
+
+/* The status column is wide for the invariant table. The plots cannot use the
+   width anyway: their size is capped by the height budget. */
+:root { --sidebar-w: 268px; --status-w: 480px; }
+
+.container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 18px 16px 32px;
+}
+
+/* ===================== HEADER & TABS ===================== */
+/* The header's columns are the content grid's columns, so the system name is
+   centred over the figure rather than the page. Below 1200 px the grid has no
+   third column and the header spreads its three children; at 900 px the layout
+   is one column and the two centres coincide. */
+header {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr) var(--status-w);
+    align-items: center;
+    gap: 8px 16px;
+    margin-bottom: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--bg);
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+}
+
+/* Drawn in CSS from three colours; the favicon uses the same three stops. */
+.logo {
+    width: 17px;
+    height: 17px;
+    flex: none;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 30% 30%, var(--primary) 0 42%, transparent 44%),
+        radial-gradient(circle at 70% 70%, var(--secondary) 0 42%, transparent 44%),
+        var(--tertiary);
+}
+
+header h1 {
+    font-size: var(--fs-lead);
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.2px;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Explicit columns: when .hidden removes the system name, auto-placement would
+   otherwise pull the nav into the middle column. */
+.brand { grid-column: 1; justify-self: start; }
+
+/* The current system, centred. It opens the picker, so it is --link and framed
+   like the nav buttons. */
+.header-system {
+    grid-column: 2;
+    justify-self: center;
+    font-family: var(--mono);
+    font-size: var(--fs-lead);
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: var(--link);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 5px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color .12s, border-color .12s;
+}
+
+.header-system:hover {
+    color: #8cc8ff;
+    border-color: var(--primary);
+}
+
+.header-nav {
+    grid-column: 3;
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tab-nav {
+    display: flex;
+    gap: 4px;
+}
+
+.header-sep {
+    width: 1px;
+    height: 16px;
+    background: var(--border);
+}
+
+/* The tab strip, adapted from the example app as .btn is. font-family: inherit
+   and the 600 weight are this sheet's own. */
+/* An outline means available; a 2 px underline and a full-white frame mark the
+   current view. The resting frame is white at 60 %, enough for a boundary and
+   quiet in a row of four. */
+.tab{background:transparent;border:1px solid #989b9e;color:var(--text);padding:6px 13px;border-radius:var(--radius-sm);font-size:var(--fs-body);cursor:pointer}
+.tab:hover{color:var(--link);border-color:var(--primary)}
+.tab.active{border-color:var(--text);box-shadow:inset 0 -2px 0 var(--text);background:#303438}
+
+/* The current tab ignores hover, so it never wears the hovered tab's colours. */
+.tab.active:hover{color:var(--text);border-color:var(--text);cursor:default}
+
+/* #303438 is white at 8 % over --bg, written solid. At 1.25:1 it is a wash,
+   not the state signal (the bar and frame carry that), so it needs no more
+   contrast. */
+
+.tab { font-family: inherit; font-weight: 600; letter-spacing: 0.2px; }
+
+/* Outward-facing links. */
+.site-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* An outward link in the tabs' shape. Not a .tab: it is not a view and can
+   never be .active. */
+.site-links a {
+    font-size: var(--fs-body);
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid #989b9e;
+    border-radius: var(--radius-sm);
+    padding: 6px 13px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.site-links a:hover { color: var(--link); border-color: var(--primary); }
+
+/* ===================== TAB CONTENT ===================== */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ===================== VISUALIZATION TAB ===================== */
+main {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+}
+
+/* Three columns: the rail (what you load and change), the plots, and the status
+   column (what the app reports). The DOM order is plots, status, rail, so the tab
+   order reaches the figure before the controls; `grid-template-areas` reorders the
+   columns without moving the markup. The breakpoints live only here: `layoutPlots`
+   measures `.plots-column`, so the canvas sizing follows them. */
+.content-grid {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr) var(--status-w);
+    grid-template-areas: "rail plots status";
+    gap: 16px;
+    align-items: start;
+}
+
+.plots-column  { grid-area: plots; }
+.status-column { grid-area: status; }
+.control-group { grid-area: rail; }
+
+.status-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+
+/* The status column gives way first: it drops under the plots, and the rail takes
+   the full height beside them. */
+@media (max-width: 1200px) {
+    .content-grid {
+        grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+        grid-template-areas: "rail plots" "rail status";
+    }
+
+    /* No third column to align to; see the note on `header`. */
+    header { grid-template-columns: auto minmax(0, 1fr) auto; }
+}
+
+.plots-column {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+/* The two plots are stacked in one card so that they share a composition axis. */
+.plots-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+
+/* The card hugs its canvases rather than filling the column, so the spare width
+   reads as a gutter. This is why `layoutPlots` measures `.plots-column`. */
+.plots-row .visualization-panel {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    max-width: 100%;
+}
+
+/* The strip between the two canvases. It has no border, so the two plots read as
+   one card. */
+.gibbs-strip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0 2px;
+}
+
+.gibbs-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 0;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--fs-caption);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+
+.gibbs-toggle:hover { color: var(--text); }
+
+.gibbs-caret {
+    display: inline-block;
+    font-size: var(--fs-caption);
+    transition: transform 0.15s ease;
+}
+
+.gibbs-panel[data-open="true"] .gibbs-caret { transform: rotate(90deg); }
+
+/* The temperature control folds away with the curves. T drives only the G panel
+   and the isotherm, and the isotherm leaves the diagram when the panel closes. */
+.gibbs-panel[data-open="false"] #gibbs-body,
+.gibbs-panel[data-open="false"] .temp-control { display: none; }
+
+/* The slider's ends stay labelled because the temperature window differs from
+   system to system. */
+.temp-control {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-left: auto;
+    min-width: 0;
+}
+
+.temp-label {
+    font-size: var(--fs-caption);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+
+.temp-end {
+    font-family: var(--mono);
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+    white-space: nowrap;
+}
+
+/* The slider is the isotherm's other handle. `#value-temp` rides the thumb as its
+   label, and it is the `role="status"` live region the arrow keys announce through,
+   so it must stay this element. It carries no unit, since both end labels have one.
+   The fill and the ring take `--fig-highlight`, the isotherm's token, so `Light
+   figure` recolours the line and its control together. */
+.temp-track {
+    /* Half of the centred label hangs past each end of the track; the gutter holds
+       that overhang clear of the end labels. */
+    --gutter: 30px;
+    /* Must equal the thumb width. The label's `left` reproduces the native thumb's
+       travel, from thumb/2 to track - thumb/2; a mismatch drifts it off the thumb in
+       mid-travel while both ends still look right. */
+    --thumb: 14px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 210px;   /* 150 px of track between the gutters */
+    padding: 0 var(--gutter);
+}
+
+.temp-track input[type="range"] {
+    width: 100%;
+    margin: 0;
+    /* Filled up to the value, to show where in the window the isotherm is. */
+    background: linear-gradient(to right,
+        var(--fig-highlight) 0 var(--temp-at, 0%),
+        var(--border) var(--temp-at, 0%));
+}
+
+/* Transparent, not removed: the label is drawn over the thumb, but the thumb is
+   still the hit, focus and keyboard target. Scoped to `#temp-slider` because the
+   parameter sliders share the range-input recipe. */
+#temp-slider::-webkit-slider-thumb { background: transparent; }
+#temp-slider::-moz-range-thumb { background: transparent; }
+
+.temp-track .param-value {
+    position: absolute;
+    left: calc(var(--gutter) + var(--thumb) / 2
+               + var(--temp-frac, 0) * (100% - 2 * var(--gutter) - var(--thumb)));
+    transform: translateX(-50%);
+    /* Every pointer event belongs to the input underneath. */
+    pointer-events: none;
+    min-width: 34px;
+    padding: 2px 7px;
+    font-family: var(--mono);
+    font-size: var(--fs-caption);
+    text-align: center;
+    color: var(--text);
+    background: var(--surface-2);
+    /* A ring rather than a fill in the live colour: `--fig-highlight` is chosen for
+       the figure's ground, and under `Light figure` it is 2.4:1 on this panel, too
+       low to carry text. */
+    box-shadow: 0 0 0 1.5px var(--fig-highlight);
+}
+
+/* Narrow windows: the figure first, then the controls, then the status blocks. */
+@media (max-width: 900px) {
+    .content-grid {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "plots" "rail" "status";
+    }
+}
+
+
+/* One recipe for all six status blocks. The summary is the name and an abridged
+   line, with a drawn triangle so a block reads as openable while it is closed. */
+.status-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    margin: 0;
+    min-width: 0;
+}
+
+.status-summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+}
+
+.status-summary::-webkit-details-marker { display: none; }
+
+/* Every disclosure answers the pointer by lighting its name. Set on `.status-name`
+   because it sets its own colour, which a colour on the summary would not reach. */
+.status-summary:hover .status-name { color: var(--link); }
+
+/* Before the name, so the six blocks line up on their triangles. */
+.status-summary::before {
+    content: '';
+    flex: none;
+    align-self: center;
+    width: 0;
+    height: 0;
+    border-left: 4px solid currentColor;
+    border-top: 3.5px solid transparent;
+    border-bottom: 3.5px solid transparent;
+    opacity: 0.55;
+    transition: transform 120ms;
+}
+
+.status-block[open] > .status-summary::before { transform: rotate(90deg); }
+.status-summary:hover { color: var(--text); }
+
+/* ---------------------------------------------------------------------------
+   One heading style wherever a section is named, in both columns. `--text`
+   rather than `--text-dim`, so that headings do not read as captions.
+   --------------------------------------------------------------------------- */
+.section-heading,
+.status-name {
+    flex: none;
+    font-size: var(--fs-caption);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text);
+}
+
+.section-heading {
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* One step up the type scale. With the rule above the group, it keeps a rail
+   heading from reading as body text. */
+.control-group .section-heading {
+    font-size: var(--fs-body);
+    letter-spacing: 0.8px;
+}
+
+.rail-group {
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    margin-bottom: 14px;
+}
+
+.rail-group:first-of-type { padding-top: 0; border-top: none; }
+
+/* A foldable rail section keeps `.section-heading`, so only the triangle tells it
+   from a fixed one. */
+.rail-section > summary.section-heading {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 2px 8px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+/* The title stays on one line in the 236 px rail; the brief wraps instead. */
+.rail-title { white-space: nowrap; }
+
+.rail-section > summary::-webkit-details-marker { display: none; }
+
+.rail-section > summary.section-heading::after {
+    content: '▸';
+    order: -1;
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+    transition: transform 0.15s;
+}
+
+.rail-section[open] > summary.section-heading::after { transform: rotate(90deg); }
+
+.rail-section > summary:hover { color: var(--link); }
+
+/* Shown only while the section is closed, since the open rows carry the same
+   counts. */
+.rail-section[open] > summary .rail-brief { display: none; }
+
+.rail-brief {
+    font-size: var(--fs-caption);
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text-dim);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.rail-group:last-of-type { margin-bottom: 0; }
+
+
+/* The abridged line, set by the function that builds the body (see
+   `setStatusBrief` in app.js). It truncates rather than wrapping the heading. */
+.status-brief {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+}
+
+/* Hidden while open, where it would repeat the body. The same rule as
+   `.rail-section[open] .rail-brief` in the rail. */
+.status-block[open] > .status-summary .status-brief { display: none; }
+
+.status-body { margin-top: 8px; }
+
+/* Visualization Panel */
+.visualization-panel {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 14px;
+    border-radius: var(--radius-lg);
+    min-width: 0;
+}
+
+.panel-title {
+    font-size: var(--fs-body);
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.canvas-wrapper {
+    position: relative;
+    min-width: 0;
+}
+
+/* Actions drawn inside the plot's top-right corner. The offsets clear the grade
+   caption, which is drawn right-aligned in the top margin (`MARGIN` in app.js). */
+.plot-actions {
+    position: absolute;
+    top: 22px;
+    right: 24px;
+    z-index: 2;
+    display: flex;
+    gap: 6px;
+}
+.plot-action {
+    background: var(--surface);
+    opacity: 0.92;
+}
+.plot-action:hover { opacity: 1; }
+
+/* The fields the diagram could not name, under the phase swatches. In the text
+   colour rather than dim, since it reports something missing from the figure.
+   Hovering or focusing an entry lights its fields on the plot. */
+.unnamed-key {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 0;
+    margin-top: 8px;
+    font-size: var(--fs-caption);
+    line-height: 17px;
+    color: var(--text);
+}
+.unnamed-key[hidden] { display: none; }
+.unnamed-head {
+    width: 100%;
+    font-weight: 600;
+}
+.unnamed-item {
+    cursor: default;
+    text-decoration: underline dotted;
+    text-decoration-color: var(--text-dim);
+    text-underline-offset: 3px;
+    border-radius: var(--radius-sm);
+}
+/* After the entry rather than before the next, so a wrapped line starts with
+   a name. Inline-block keeps the dot out of the entry's underline. */
+.unnamed-item:not(:last-child)::after {
+    content: '·';
+    display: inline-block;
+    width: 14px;
+    text-align: center;
+    color: var(--text-dim);
+}
+/* `--highlight`, the colour the field lights up in, so the entry and its field
+   read as one. Always the dark UI's lime: the light figure's `#920afc` is 2.36:1
+   on this panel. */
+.unnamed-item:hover,
+.unnamed-item:focus-visible { color: var(--highlight); text-decoration-color: currentColor; }
+/* `+N more` and `show fewer`: a button styled as a link, like the footer's. */
+.unnamed-more {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    color: var(--link);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--link) 45%, transparent);
+    text-underline-offset: 2px;
+}
+.unnamed-more:hover { color: #8cc8ff; text-decoration-color: currentColor; }
+/* Its count in the closed block's summary. It is short, so it does not truncate. */
+#unnamed-brief { flex: none; color: var(--text); }
+
+#phase-canvas,
+#boundary-canvas {
+    display: block;
+    border-radius: var(--radius-sm);
+    max-width: 100%;
+}
+
+
+/* ===================== CONTROLS ===================== */
+.control-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px;
+    border-radius: var(--radius-lg);
+    min-width: 0;
+}
+
+h2 {
+    font-size: var(--fs-lead);
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.param-name {
+    font-size: var(--fs-body);
+    font-weight: 700;
+    color: var(--text);
+}
+
+.param-value {
+    font-size: var(--fs-caption);
+    color: var(--link);
+    background: var(--surface-2);
+    padding: 3px 10px;
+    border-radius: var(--radius-sm);
+    min-width: 36px;
+    text-align: center;
+}
+
+/* On a parameter row the value box is an input, so the value is read and typed in
+   one place. The resting border marks it as editable. The temperature's
+   `.param-value` is a span and keeps the pill above. */
+input.param-value {
+    width: 84px;
+    text-align: right;
+    border: 1px solid var(--border);
+    padding: 3px 4px 3px 8px;
+}
+
+input.param-value:hover {
+    border-color: var(--text-dim);
+}
+
+input.param-value:focus {
+    border-color: var(--primary);
+}
+
+/* `:not(:focus-visible)` is required. This selector (0,1,1) outranks the global
+   `:focus-visible` rule (0,1,0), so a bare `outline: none` would strip the ring
+   from every slider, including `#temp-slider`, the keyboard route to the
+   temperature. */
+input[type="range"]:not(:focus-visible) {
+    outline: none;
+}
+
+input[type="range"] {
+    width: 100%;
+    height: 4px;
+    border-radius: var(--radius-sm);
+    background: var(--border);
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    border: none;
+}
+
+#reset-btn {
+    width: 100%;
+    padding: 10px 16px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: var(--fs-lead);
+    font-weight: 700;
+    transition: all 0.2s ease;
+    margin-top: 16px;
+}
+
+/* It discards every parameter edit, so its hover is `--warn`, as Remove all
+   data's is. */
+#reset-btn:hover {
+    border-color: var(--warn);
+    color: var(--warn);
+}
+
+/* Inline legend */
+.legend-inline {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.legend-note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 2px;
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+}
+
+.ci {
+    width: 16px;
+    height: 10px;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+    /* The swatches follow the figure theme, so the muted fill is near white under
+       the light figure. The outline keeps a pale swatch's edge visible on the panel. */
+    outline: 1px solid rgba(232, 234, 237, 0.22);
+    outline-offset: -1px;
+}
+
+
+/* The baseline ghost's key: a rule, since the ghost is a line with no hue. */
+.ci.ci-ghost {
+    height: 0;
+    outline: none;
+    border-top: 2px solid var(--text-dim);
+    align-self: center;
+}
+
+.ci-label {
+    font-size: var(--fs-caption);
+    color: var(--text);
+    margin-right: 12px;
+    white-space: nowrap;
+}
+
+/* These sit in the narrow Diagnostics column and the timing line is long, so they
+   wrap. */
+.timing-display {
+    font-size: var(--fs-caption);
+    color: var(--text);
+    overflow-wrap: break-word;
+    min-width: 0;
+}
+
+.memory-display {
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+    overflow-wrap: break-word;
+    min-width: 0;
+}
+
+/* ===================== LOADING OVERLAY ===================== */
+.loading {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loading.hidden { display: none; }
+
+.spinner {
+    width: 40px; height: 40px;
+    border: 2px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading p {
+    margin-top: 16px;
+    color: var(--text-dim);
+    font-size: var(--fs-lead);
+}
+
+/* ===================== ABOUT PAGE ===================== */
+.about-page {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.about-container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.about-section {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 28px 32px;
+}
+
+/* No hue on section headings: blue in this app means "you can act on this". */
+.about-section h2 {
+    font-size: var(--fs-lead);
+    font-weight: 600;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+}
+
+/* A subheading inside a section, quieter than the h2 above it: no rule and no
+   uppercase, so the section still reads as one subject. */
+.about-section h3 {
+    font-size: var(--fs-lead);
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.2px;
+    margin: 22px 0 10px;
+}
+.about-section p {
+    font-size: var(--fs-lead);
+    line-height: 1.75;
+    color: rgba(245,245,245,0.85);
+    margin-bottom: 12px;
+}
+
+.about-section p:last-child { margin-bottom: 0; }
+
+.equation-box {
+    background: rgba(15,163,177,0.07);
+    border-left: 3px solid var(--primary);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    font-size: var(--fs-body);
+    line-height: 2;
+    color: var(--text);
+    margin: 14px 0;
+}
+
+.note-text {
+    font-size: var(--fs-body) !important;
+    color: var(--text-dim) !important;
+    font-style: italic;
+}
+
+/* A control named in the About tab. */
+.about-section .ui-name {
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+}
+
+.about-section code,
+.scale-table code {
+    font-family: var(--mono);
+    font-size: var(--fs-body);
+    color: var(--text);
+    background: rgba(255,255,255,0.06);
+    border-radius: var(--radius-sm);
+    padding: 1px 5px;
+}
+
+/* How-to list */
+.how-to-list {
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.about-section .how-to-list,
+.about-section .scale-table { margin-bottom: 16px; }
+.about-section .how-to-list:last-child,
+.about-section .scale-table:last-child { margin-bottom: 0; }
+
+.how-to-list li {
+    font-size: var(--fs-lead);
+    line-height: 1.7;
+    color: rgba(245,245,245,0.85);
+}
+
+/* Scale table */
+.scale-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-body);
+    margin-top: 8px;
+}
+
+.scale-table th, .scale-table td {
+    padding: 8px 14px;
+    text-align: left;
+    border: 1px solid var(--border);
+    line-height: 1.5;
+}
+
+.scale-table th {
+    background: rgba(255,255,255,0.04);
+    color: var(--text-dim);
+    font-weight: 600;
+    font-size: var(--fs-caption);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.scale-table td {
+    color: rgba(245,245,245,0.85);
+}
+
+.scale-table td:first-child {
+    font-weight: 700;
+    color: var(--link);
+}
+
+/* ===================== TDB DROP ZONE ===================== */
+.tdb-drop-zone {
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    margin-bottom: 18px;
+    user-select: none;
+}
+
+.tdb-drop-zone:hover,
+.tdb-drop-zone.dragover {
+    border-color: var(--primary);
+    background: var(--surface-2);
+}
+
+.tdb-drop-zone:hover .drop-text,
+.tdb-drop-zone.dragover .drop-text,
+.tdb-drop-zone:hover .drop-icon,
+.tdb-drop-zone.dragover .drop-icon {
+    color: var(--link);
+}
+
+.tdb-drop-zone.dragover {
+    background: color-mix(in srgb, var(--primary) 12%, var(--surface-2));
+}
+
+.drop-icon {
+    display: block;
+    font-size: var(--fs-title);
+    color: var(--text-dim);
+    margin-bottom: 4px;
+    line-height: 1;
+}
+
+.drop-text {
+    font-size: var(--fs-caption);
+    font-weight: 700;
+    color: var(--text-dim);
+    margin-bottom: 2px;
+}
+
+.drop-sub {
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+}
+
+.file-link {
+    color: var(--link);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* The drop zones' file inputs, hidden by size and opacity: `display: none` would
+   drop them from the tab order, and they are the keyboard route to loading a file.
+   `pointer-events: none` keeps the 1 px box from taking clicks. The focus ring goes
+   on the label through a sibling selector, so the input must sit immediately before
+   its label in the markup. */
+.file-input-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.file-input-hidden:focus-visible + .file-link {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+}
+
+.tdb-loaded-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(15, 163, 177, 0.08);
+    border: 1px solid rgba(15, 163, 177, 0.3);
+    border-radius: var(--radius-md);
+    margin-bottom: 18px;
+}
+
+.tdb-loaded-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.tdb-filename {
+    font-size: var(--fs-caption);
+    font-weight: 700;
+    color: var(--link);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tdb-info-text {
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+}
+
+/* `.btn.small.ghost`, sized as a square for one glyph, with a destructive hover. */
+.tdb-clear-btn {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    justify-content: center;
+    color: var(--text-dim);
+}
+
+.tdb-clear-btn:hover {
+    background: transparent;
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
+
+.tdb-error {
+    font-size: var(--fs-caption);
+    color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.08);
+    border: 1px solid rgba(255, 107, 107, 0.25);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    margin-bottom: 14px;
+    line-height: 1.4;
+}
+
+/* The engine-trapped notice: the error's style, with a hint and a reload button. */
+.engine-dead-hint {
+    margin-top: 4px;
+    color: var(--text-dim);
+}
+
+.engine-reload-btn {
+    margin-top: 8px;
+    padding: 5px 14px;
+    font: inherit;
+    font-size: var(--fs-caption);
+    color: var(--text);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color 120ms, background 120ms;
+}
+
+.engine-reload-btn:hover {
+    border-color: var(--primary);
+    background: var(--surface);
+}
+
+.hidden { display: none !important; }
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 700px) {
+    .about-section {
+        padding: 20px 16px;
+    }
+}
+
+/* ===================== DYNAMIC TDB PHASE SLIDERS ===================== */
+
+#tdb-param-sliders {
+    margin-bottom: 4px;
+}
+
+.phase-group {
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+/* A disclosure header like `.status-summary`. Neutral, so the phase list does not
+   compete with the saturated fill that marks an active tool. */
+.phase-group-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    background: var(--surface-2);
+    color: var(--text);
+    font-size: var(--fs-caption);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.phase-group-header::-webkit-details-marker { display: none; }
+
+/* The whole strip is the control, so the phase name answers the pointer. */
+.phase-group-header:hover { color: var(--link); }
+
+.phase-group-header::after {
+    content: '▸';
+    font-size: var(--fs-caption);
+    transition: transform 0.15s;
+}
+
+details.phase-group[open] > .phase-group-header::after {
+    content: '▾';
+}
+
+details.phase-group[open] > .phase-group-header {
+    border-bottom: 1px solid var(--border);
+}
+
+.phase-tweak-hint {
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+    font-style: italic;
+    margin: 0 0 8px 2px;
+}
+
+/* Two lines: label, range and value box, then the track and the fit tick. */
+.lparam-row {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.lparam-row:last-child { border-bottom: none; }
+
+.lparam-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 7px;
+}
+
+/* `L` with the order as a subscript, as the About tab's equation writes it. A
+   compound shows its formula here instead, so this holds a word as well as a symbol. */
+.lparam-ident {
+    font-family: var(--mono);
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+    flex: none;
+}
+
+.lparam-top .param-name { font-size: var(--fs-caption); }
+
+/* The row's title. An L parameter names itself in the mono ident (`Δ L₀`), which
+   takes the title's ink; a compound shows its formula as a dim ident and
+   `.param-name` is the title (`Ag2Mg  Δ G`). `nowrap` keeps the first line to one
+   line in the 234 px rail, which `.lparam-range` relies on. */
+.lparam-title { white-space: nowrap; }
+.lparam-ident.lparam-title { color: var(--text); font-weight: 700; }
+
+.lparam-bot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.lparam-bot .lparam-track { flex: 1; }
+
+/* Positioned, so the track paints over the tick; otherwise the absolutely
+   positioned tick would draw across the thumb. */
+.lparam-track > input[type="range"] { flex: 1; position: relative; z-index: 1; }
+.lparam-bot .param-lock { flex: none; margin-top: 0; }
+
+/* A tick at the assessed value, the zero of a track whose number is a displacement
+   from it. The thumb covers it exactly when the parameter is untouched, so a visible
+   tick marks a moved row. A wrapper, because a range input grows no pseudo-elements. */
+.lparam-track {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.lparam-track::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 1px;
+    height: 11px;
+    transform: translate(-50%, -50%);
+    background: var(--text-dim);
+    pointer-events: none;
+}
+
+/* The group's unit, stated once in its header (see `groupUnitNote`). */
+.phase-group-unit {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text-dim);
+    margin-left: auto;
+}
+
+/* The row's track range (see `rowRangeNote`), before the value box on the first
+   line, so it costs no height while the title cannot wrap. Its `margin-left: auto`
+   pushes the range and the value box to the row's end. */
+.lparam-range {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-left: auto;
+    flex: none;
+}
+
+/* ===== Render-mode toggle + invariant readout ===== */
+
+/* The toolbar over the plot, in one strip. The row gap spaces the rows when it
+   wraps on a narrow panel. */
+.plot-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    margin-bottom: 10px;
+}
+
+/* For a heading that a screen reader needs but the screen does not. */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Units sit at the far end, so the strip reads left to right as "what to draw,
+   what to do with the view, what to measure it in". */
+.plot-toolbar .unit-row { margin-left: auto; }
+
+.toolbar-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 0;
+}
+
+.invariant-readout {
+    margin-top: 14px;
+    padding: 8px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: var(--fs-caption);
+    line-height: 1.6;
+    color: var(--text-dim);
+}
+
+.invariant-readout:empty {
+    display: none;
+}
+
+/* One row per reaction. The last column takes the slack, so the short columns stay
+   put at any panel width. */
+.inv-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.inv-table th {
+    font-size: var(--fs-caption);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    padding: 0 12px 4px 0;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.inv-table td {
+    padding: 4px 12px 4px 0;
+    vertical-align: baseline;
+}
+
+.inv-table tr + tr td { border-top: 1px solid var(--border); }
+
+.inv-table td:last-child, .inv-table th:last-child { width: 100%; padding-right: 0; }
+
+.inv-t { white-space: nowrap; }
+
+.invariant-readout .inv-kind {
+    color: var(--text);
+    font-weight: 700;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+/* A reaction at which a phase is evaluated past its declared temperature range.
+   Quiet, since it qualifies a real result, but it sits beside the number. */
+.invariant-readout .inv-extrapolated {
+    margin-left: 6px;
+    padding: 0 5px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-caption);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    cursor: help;
+}
+
+/* Dimmed, but solid enough to read as a qualifier on the number. */
+.invariant-readout .inv-extrapolated { opacity: 0.75; }
+
+/* The sequence changed but the reaction could not be named, so the diagram may be
+   one invariant short. It takes `--warn`, as the fidelity panel does for an
+   approximated phase: both mean the diagram is not telling you everything. */
+.invariant-readout .inv-unclassified {
+    /* Follows the table, so it needs its own spacing. */
+    display: inline-block;
+    margin-top: 8px;
+    padding: 0 5px;
+    border: 1px solid var(--warn);
+    border-radius: var(--radius-sm);
+    color: var(--warn);
+    font-size: var(--fs-caption);
+    letter-spacing: 0.02em;
+    cursor: help;
+}
+
+/* Beside the fit button while a worker fit runs. Secondary, since cancelling is
+   not the expected choice. */
+.fit-cancel {
+    width: 100%;
+    margin-top: 6px;
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: var(--fs-body);
+    cursor: pointer;
+}
+
+.fit-cancel:hover {
+    border-color: var(--text-dim);
+    color: var(--text);
+}
+
+/* The parameter panel while a fit runs. It is `inert` and the rest of the page
+   stays live, so it has to look disabled. */
+#tdb-param-sliders.fitting {
+    opacity: 0.5;
+    filter: saturate(0.4);
+    transition: opacity 0.15s ease;
+}
+
+/* ===== Experimental data overlay ===== */
+
+.exp-drop-zone {
+    margin-top: 12px;
+    padding: 14px 12px;
+}
+
+.exp-panel {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+.exp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-caption);
+}
+
+.exp-table td {
+    padding: 4px 2px;
+    vertical-align: middle;
+    color: var(--text);
+}
+
+.exp-table td.exp-count {
+    color: var(--text-dim);
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.exp-table td.exp-name {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 0;
+    white-space: nowrap;
+}
+
+.exp-table tr.hidden-source td.exp-name,
+.exp-table tr.hidden-source td.exp-count {
+    opacity: 0.4;
+}
+
+/* Source rows carry no colour chip. The source colours are a ramp of near-whites
+   that cannot be told apart at that size; toggling a source shows which it is. */
+
+.exp-remove {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: var(--fs-body);
+    line-height: 1;
+    padding: 2px 4px;
+}
+
+.exp-remove:hover { color: var(--warn); }
+
+.exp-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+}
+
+.exp-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* `.btn.small.ghost`, spanning the panel. It deletes data, so its hover is
+   `--warn` rather than `--primary`. Its rules double the class because `.btn`
+   comes later at equal specificity. */
+.btn.exp-clear-btn {
+    width: 100%;
+    margin-top: 10px;
+    justify-content: center;
+    color: var(--text-dim);
+}
+
+.btn.exp-clear-btn:hover {
+    background: transparent;
+    border-color: var(--warn);
+    color: var(--warn);
+}
+
+/* The prompt over data loaded for another system: one line, two actions. */
+.exp-parked {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 6px;
+    margin: 6px 0;
+    font-size: var(--fs-caption);
+    line-height: 1.5;
+    color: var(--text-dim);
+}
+
+.exp-note {
+    margin-top: 8px;
+    font-size: var(--fs-caption);
+    line-height: 1.5;
+    color: var(--text-dim);
+}
+
+#phase-canvas {
+    cursor: crosshair;
+    touch-action: none;
+}
+
+#phase-canvas.panning {
+    cursor: grabbing;
+}
+
+/* Over the isotherm, and while dragging it, which moves only vertically. Both
+   come after `.panning` so they win in the moment before a press registers. */
+#phase-canvas.over-isotherm,
+#phase-canvas.scrubbing {
+    cursor: ns-resize;
+}
+
+/* ===== Live goodness-of-fit ===== */
+
+.fit-panel {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin: 14px 0 4px;
+    padding: 10px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: var(--fs-caption);
+}
+
+.fit-label {
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: var(--fs-caption);
+}
+
+/* The misfit takes `--text`, not the lime accent: lime marks what the reader
+   acts on directly, and the misfit only follows other changes. Not `--warn`
+   either, which belongs to `.fit-warn` beside it. */
+.fit-value {
+    font-size: var(--fs-display);
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    margin: 0 4px;
+}
+
+.fit-units { color: var(--text-dim); font-size: var(--fs-caption); }
+
+.fit-headline { display: flex; align-items: baseline; gap: 4px; }
+
+.fit-breakdown {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Also marks "at limit" in the fit review, a parameter that stopped on its
+   bound. Both say the number beside them is not what it appears to be. */
+.fit-breakdown .fit-warn,
+.fit-review-text .fit-warn { color: var(--warn); }
+
+.exp-colour-mode { display: flex; }
+
+.residual-scale {
+    /* A row of its own in the wrapping legend, so the bar has width. */
+    flex-basis: 100%;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+}
+
+/* The gradient is set in `rebuildExpPanel` from `palette.residual*`, the colours
+   `residualColor` draws the marks with, so it follows the figure theme. */
+.residual-scale-bar {
+    flex: 1;
+    height: 8px;
+    border-radius: var(--radius-sm);
+}
+
+/* ===== Fit controls ===== */
+
+.fit-controls { margin-top: 16px; }
+
+/* The fit button: a full-width outline that lights on hover. Its rules double
+   the class because `.btn` comes later at equal specificity. */
+.btn.fit-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 16px;
+    background: transparent;
+    border-color: var(--border);
+    color: var(--text);
+    font-size: var(--fs-lead);
+    font-weight: 700;
+}
+
+.btn.fit-btn:hover:not(:disabled) {
+    background: transparent;
+    border-color: var(--primary);
+    color: var(--link);
+}
+
+.btn.fit-btn:disabled {
+    background: transparent;
+    color: var(--text-dim);
+    border-color: var(--border);
+    cursor: default;
+}
+
+.fit-status {
+    margin-top: 6px;
+    font-size: var(--fs-caption);
+    line-height: 1.5;
+    color: var(--text-dim);
+}
+
+.fit-status:empty { display: none; }
+
+.fit-status.fit-error { color: var(--warn); }
+
+.fit-review {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-md);
+}
+
+.fit-review-text {
+    font-size: var(--fs-caption);
+    line-height: 1.6;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+
+.fit-review-text .fit-key { color: var(--text-dim); }
+
+.fit-review-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.fit-accept, .fit-revert {
+    flex: 1;
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: var(--fs-caption);
+    font-weight: 700;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+}
+
+.fit-accept:hover { border-color: var(--primary); color: var(--link); }
+.fit-revert:hover { border-color: var(--warn); color: var(--warn); }
+
+/* Lock/unlock checkbox beside each parameter slider */
+.param-lock {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+    margin-top: 4px;
+    user-select: none;
+    cursor: pointer;
+}
+
+.param-lock input { margin: 0; cursor: pointer; }
+
+/* ===== Export + session ===== */
+
+/* The status column sets the gap between its blocks; the panel adds none. */
+.export-controls .export-grid { margin-top: 8px; }
+
+
+/* Three columns, one per kind of output: the picture, the model behind it and
+   the state of the app. Explicit groups rather than `grid-auto-flow: column`,
+   which would split the 2/3/2 buttons as 3/3/1. */
+.export-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    align-items: start;
+}
+
+.export-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.export-grid button {
+    padding: 8px 6px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: var(--fs-caption);
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.export-grid button:hover:not(:disabled) {
+    border-color: var(--primary);
+    color: var(--link);
+}
+
+.export-grid button:disabled { opacity: 0.4; cursor: default; }
+
+.export-status {
+    margin-top: 8px;
+    font-size: var(--fs-caption);
+    line-height: 1.5;
+    color: var(--text-dim);
+}
+
+.export-status:empty { display: none; }
+.export-status.export-error { color: var(--warn); }
+
+/* ===== Example picker ===== */
+
+.example-picker { margin-bottom: 12px; }
+
+
+#example-select {
+    width: 100%;
+    padding: 8px 10px;
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: var(--fs-body);
+    font-family: inherit;
+    cursor: pointer;
+}
+
+#example-select:hover { border-color: var(--primary); }
+
+/* While an example is loaded the select holds it, and says so in `--link` as
+   `.tdb-filename` does for a file. The border stays neutral so hover can still
+   turn it blue. app.js drops the class once anything else is loaded. */
+#example-select.is-holding { color: var(--link); }
+
+.example-note {
+    margin-top: 6px;
+    font-size: var(--fs-caption);
+    line-height: 1.5;
+    color: var(--text-dim);
+}
+
+.example-note:empty { display: none; }
+.example-note a { color: var(--link); text-decoration: none; }
+.example-note a:hover { text-decoration: underline; }
+
+/* ===== Diagnostics (collapsed by default) + dynamic phase legend ===== */
+
+.diagnostics {
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+}
+
+
+.diagnostics-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 6px;
+}
+
+.legend-inline .ci {
+    width: 14px;
+    height: 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(0, 0, 0, 0.35);
+}
+
+/* ===== Hover crosshair overlay ===== */
+
+/* A second canvas on top of the diagram, so a hover redraws ~1 KB of crosshair
+   instead of the whole figure. Pointer events pass through to the plot. */
+.overlay-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    border-radius: var(--radius-sm);
+    max-width: 100%;
+}
+
+/* ===== Unit toggles ===== */
+
+.unit-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    margin: 0;
+}
+
+/* Each unit picker is one cycling button; the caret says another value lies
+   behind the one shown. */
+.unit-cycle::after {
+    content: '\25BE';
+    font-size: var(--fs-caption);
+    opacity: 0.6;
+}
+.tool-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ---------------------------------------------------------------------------
+   MODEL FIDELITY: what the engine did with each declared phase.
+
+   A phase drawn with part of its model discarded looks like a correct one, so
+   that is the state the panel opens for and colours. A phase left off the
+   diagram already shows as a missing field.
+   --------------------------------------------------------------------------- */
+
+.fidelity-panel {
+    margin-top: 8px;
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+}
+
+
+/* Raised only when something is approximated; a database modelled in full
+   gets no colour at all, so the accent keeps its meaning. */
+.fidelity-panel.has-approx > .status-summary .status-name,
+.fidelity-panel.has-approx > .status-summary .status-brief { color: var(--warn); }
+
+.fidelity-body {
+    margin-top: 6px;
+    padding: 8px;
+    background: var(--surface-2);
+    border-radius: var(--radius-md);
+}
+
+.fidelity-table { width: 100%; border-collapse: collapse; }
+.fidelity-table td { padding: 3px 4px; vertical-align: top; line-height: 1.35; }
+.fidelity-table td.fid-phase { font-family: var(--mono); white-space: nowrap; color: var(--text); }
+.fidelity-table td.fid-detail { color: var(--text-dim); }
+
+.fidelity-table tr.fid-approximated td.fid-phase { color: var(--warn); }
+.fidelity-table tr.fid-unsupported td.fid-phase,
+.fidelity-table tr.fid-rejected td.fid-phase { color: var(--text-dim); text-decoration: line-through; }
+
+.fidelity-foot {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+    color: var(--text-dim);
+    line-height: 1.4;
+}
+
+/* Notices that are not per-phase facts and so have no row in the table above:
+   an extra-element system, or an axis running past a declared temperature range. */
+.fidelity-foot .fid-warning {
+    margin-top: 6px;
+    padding-left: 8px;
+    border-left: 2px solid var(--border);
+}
+
+/* The same mark the legend puts against an approximated phase. */
+.legend-approx { color: var(--warn); font-weight: 600; }
+
+/* ---------------------------------------------------------------------------
+   DATABASE NOTES: the .tdb file's own `$` comment block.
+
+   Sized by its content up to a cap, then scrolls. Monospace and unwrapped,
+   because the text is quoted verbatim from the file.
+   --------------------------------------------------------------------------- */
+
+.tdb-notes {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+}
+
+.tdb-notes-body {
+    margin-top: 8px;
+    padding: 10px 12px;
+    background: var(--surface-2);
+    border-radius: var(--radius-md);
+    max-height: min(46vh, 420px);
+    overflow: auto;
+    /* Long blocks can be dragged taller than the cap. */
+    resize: vertical;
+}
+
+/* Lines scroll rather than wrap: the panel's foot says "verbatim and in file
+   order", which soft wrapping at the column width would make false. */
+.tdb-note {
+    font-family: var(--mono);
+    white-space: pre;
+    line-height: 1.45;
+    color: var(--text);
+}
+
+.tdb-note + .tdb-note { margin-top: 10px; }
+
+.tdb-notes-foot {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+    line-height: 1.4;
+}
+
+/* The build identifier, quieter than the timing figures beside it. */
+.version-display {
+    font-size: var(--fs-caption);
+    color: rgba(245, 245, 245, 0.45);
+    white-space: nowrap;
+    font-family: var(--mono);
+}
+
+/* ---------------------------------------------------------------------------
+   FOOTER AND CITE: the attribution CC BY requires, shown in the app itself.
+   ------------------------------------------------------------------------ */
+
+/* One centred line, after the example app's `#footer` rule. `position:
+   relative` anchors the Cite popover. */
+.site-footer {
+    position: relative;
+    margin-top: 16px;
+    padding: 14px 4px 4px;
+    border-top: 1px solid var(--border);
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+}
+
+.footer-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.site-footer .sep { color: var(--border); }
+.footer-link{background:none;border:none;padding:0;font-size:inherit;cursor:pointer;color:var(--link);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--link) 45%,transparent);text-underline-offset:2px}
+.footer-link:hover{color:#8cc8ff;text-decoration-color:currentColor}
+.footer-link { font-family: inherit; }
+
+/* Title left, counts right. Baseline alignment puts the smaller counts on the
+   heading's line. */
+.picker-title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px 20px;
+    flex-wrap: wrap;
+}
+
+.picker-title-row .section-heading { margin-bottom: 0; }
+
+.picker-credit { margin-top: 14px; }
+
+.picker-credit,
+.about-credit {
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+    line-height: 1.5;
+}
+/* `.footer-lab` and `.footer-ref` are links and `.footer-link` is a button. They
+   look the same: whether the target is a URL or a block on this page is not the
+   reader's concern. */
+.footer-lab,
+.footer-ref {
+    color: var(--link);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--link) 45%, transparent);
+    text-underline-offset: 2px;
+}
+
+.footer-lab:hover,
+.footer-ref:hover { color: #8cc8ff; text-decoration-color: currentColor; }
+
+/* No href yet: a placeholder, not a link. */
+.footer-lab:not([href]) {
+    color: var(--text-dim);
+    text-decoration: none;
+    cursor: default;
+}
+
+.about-build-version { color: var(--text-dim); }
+
+.cite-build {
+    color: var(--text-dim);
+    font-size: var(--fs-caption);
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+
+/* The pointer to About's Acknowledgments, last in the Cite popover. */
+.cite-ack {
+    color: var(--text-dim);
+    font-size: var(--fs-caption);
+    margin-top: 10px;
+}
+
+.picker-credit a,
+.about-credit a { color: var(--link); text-decoration: none; }
+.picker-credit a:hover,
+.about-credit a:hover { text-decoration: underline; }
+.footer-meta { font-family: var(--mono); }
+
+/* Anchored to `.site-footer`, which is `position: relative`. */
+.cite-popover {
+    position: absolute;
+    right: 0;
+    /* Opens upward, since the button is at the foot of the page. */
+    bottom: calc(100% + 6px);
+    z-index: 30;
+    width: min(420px, calc(100vw - 32px));
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    font-size: var(--fs-caption);
+    color: var(--text);
+}
+
+.cite-popover h3 {
+    font-size: var(--fs-caption);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+}
+.cite-popover h3 + p { margin-bottom: 6px; }
+.cite-popover h3:not(:first-child) { margin-top: 12px; }
+
+.cite-bibtex {
+    font-family: var(--mono);
+    font-size: var(--fs-caption);
+    white-space: pre;
+    overflow-x: auto;
+    padding: 8px;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    color: var(--text-dim);
+}
+
+/* The sample data file in About, styled like the BibTeX block. It scrolls
+   sideways so the panel does not. */
+.data-format-sample {
+    font-size: var(--fs-caption);
+    white-space: pre;
+    overflow-x: auto;
+    padding: 10px;
+    margin: 12px 0 0;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    color: var(--text-dim);
+}
+
+.cite-copy {
+    margin-top: 6px;
+    padding: 3px 9px;
+    font: inherit;
+    font-size: var(--fs-caption);
+    color: var(--text);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+.cite-copy:hover { border-color: var(--primary); }
+
+/* Button layer, lifted from the example app and kept in its compressed form so
+   it can be compared by eye. `.btn` with `.ghost` and `.small` covers actions;
+   `.tool-btn` covers grouped choices. `.fit-btn`, `.exp-clear-btn`
+   and `.tdb-clear-btn` are modifiers holding only what is local to each button.
+   Active state carries no hue, because hue in this app means a phase. Nor does
+   it change weight, which would re-measure the label and shift the toolbar. */
+.btn,a.btn:visited{color:var(--text)}
+.btn{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:var(--fs-body);text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:background .12s,border-color .12s}
+.btn:hover{background:var(--surface-2);border-color:var(--text-dim)}
+.btn.ghost{background:transparent}
+.btn.small{padding:4px 9px;font-size:var(--fs-caption)}
+.tool-btn{background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);padding:5px 11px;border-radius:var(--radius-sm);font-size:var(--fs-caption);cursor:pointer}
+.tool-btn:hover:not(:disabled){color:var(--text)}
+/* The filled pill is for exclusive choices such as Source / Residual. The plot
+   toolbar's independent switches override it below. */
+.tool-btn.active{background:var(--text-dim);border-color:var(--text-dim);color:#0f0f0f}
+
+/* Raster, Labels and Light figure are independent switches, so they show state
+   with a checkbox glyph, ink as a second channel, rather than the filled pill
+   of an exclusive choice. The glyph is drawn in CSS so each button's label
+   stays one text node. */
+.plot-toolbar .tool-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.plot-toolbar .tool-btn::before {
+    content: "";
+    width: 9px;
+    height: 9px;
+    flex: none;
+    border-radius: 2px;
+    border: 1.5px solid currentColor;
+    background: transparent;
+}
+
+.plot-toolbar .tool-btn.active {
+    background: var(--surface-2);
+    border-color: #6a727c;
+    color: var(--text);
+}
+
+.plot-toolbar .tool-btn.active::before { background: currentColor; }
+/* Buttons sit in panels that set a font, so they inherit it rather than fall
+   back to the browser's. */
+.btn,.tool-btn{font-family:inherit}
+
+/* Loader, lifted verbatim from the example app in its compressed form.
+   `.progress-bar`'s `width: 0` is the determinate default; the modifier below
+   overrides it. */
+.loader{position:fixed;inset:0;background:#14171ae6;display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(2px)}
+.loader-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:24px 28px;width:min(360px,86vw)}
+.loader-title{font-size:var(--fs-lead);margin-bottom:12px}
+.progress{height:6px;background:var(--surface-2);border-radius:var(--radius-sm);overflow:hidden}
+.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--tertiary));transition:width .1s}
+.progress-label{margin-top:8px;font-size:var(--fs-caption);color:var(--text-dim)}
+
+/* Indeterminate variant. Parsing and sweeping a database are synchronous WASM
+   calls that report no progress, so the bar shows no fraction. It animates
+   `transform`, which is composited and keeps moving while the main thread is
+   blocked; `margin-left` or `width` would freeze. `linear` keeps the bar in the
+   track for as much of each cycle as possible, where easing lingers at the
+   ends, mostly clipped. */
+.progress-indeterminate .progress-bar {
+    width: 40%;
+    animation: progress-slide 1.15s linear infinite;
+}
+
+@keyframes progress-slide {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(250%); }
+}
+
+/* A stopped 40 % bar would read as 40 % done, so with reduced motion the fill
+   spans the track and carries a stripe instead. */
+@media (prefers-reduced-motion: reduce) {
+    .progress-indeterminate .progress-bar {
+        width: 100%;
+        animation: none;
+        background: repeating-linear-gradient(
+            135deg,
+            var(--primary) 0 6px,
+            var(--tertiary) 6px 12px);
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   SYSTEM PICKER — the periodic table over the corpus.
+
+   Eighteen columns and ten rows: seven periods, a spacer, and the two f-block
+   series. `elements.js` places each element; this sheet only sets the width.
+
+   Each cell shows its grade with one corner glyph: ≈ in `--warn` for
+   `approximated`, ⊘ in `--text-dim` for `unsupported`, and none for `full`.
+   A glyph rather than a colour, so the grade survives greyscale print and
+   colour-vision deficiency.
+   --------------------------------------------------------------------------- */
+
+/* The width sets the cell size: a cell is 1/18 of it, and square. The lower
+   bound keeps the table short enough that the assessment list below it shows
+   its heading and two rows, so the table may be `100vh - 310px` tall. The cap
+   holds a cell at 72px; past that the corner glyph drifts away from the symbol.
+   `107px` is everything on a row that is not a cell (17 gaps of 3px and 28px of
+   padding each side), and `18 / 9` is 18 columns over 9 rows of cells, the
+   f-block spacer not counted. Change them with the grid. */
+.picker-page {
+    max-width: clamp(1100px, calc(18 * (100vh - 310px) / 9 + 107px), 1403px);
+    margin: 0 auto;
+}
+
+.picker-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px 28px;
+}
+
+
+/* Every number in it comes from the manifest at runtime. */
+.picker-count {
+    font-family: var(--mono);
+    font-size: var(--fs-caption);
+    color: var(--text);
+}
+
+.picker-hint-row {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    margin-top: 4px;
+}
+
+.picker-hint {
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+}
+
+/* The current selection, as a button that clears it. It takes the accent
+   because it is the only state on this page. */
+.picker-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 9px;
+    font: inherit;
+    font-family: var(--mono);
+    font-size: var(--fs-caption);
+    color: var(--text);
+    background: var(--surface-2);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.picker-chip:hover { background: var(--surface); }
+.picker-chip-x { font-size: var(--fs-body); line-height: 1; color: var(--text-dim); }
+.picker-chip:hover .picker-chip-x { color: var(--text); }
+
+.picker-status {
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+}
+
+.picker-status.picker-failed {
+    color: var(--warn);
+    border-left: 2px solid var(--warn);
+    padding-left: 8px;
+}
+
+.picker-grid {
+    display: grid;
+    grid-template-columns: repeat(18, minmax(0, 1fr));
+    /* Row 8 is the gap the f-block hangs below. */
+    grid-template-rows: repeat(7, auto) 10px auto auto;
+    gap: 3px;
+}
+
+.picker-cell {
+    position: relative;
+    aspect-ratio: 1;
+    min-width: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    font: inherit;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color 100ms, background 100ms;
+}
+
+.picker-cell:hover:not(:disabled) {
+    border-color: var(--primary);
+}
+
+/* An element the corpus never reaches has no ground, no mark and no pointer,
+   and its title says so. */
+.picker-cell:disabled {
+    background: transparent;
+    border-color: rgba(58, 64, 72, 0.45);
+    color: rgba(154, 160, 166, 0.45);
+    cursor: default;
+}
+
+/* Atomic number in the top-left corner, opposite the grade glyph, as on a
+   printed periodic table. */
+.picker-z {
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    font-size: 10px;
+    line-height: 1;
+    color: var(--text-dim);
+}
+
+.picker-symbol {
+    font-size: var(--fs-lead);
+    font-weight: 600;
+    line-height: 1;
+}
+
+.picker-mark {
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    font-size: var(--fs-caption);
+    line-height: 1;
+}
+
+/* Scoped to `.picker-cell` because the legend items carry the same grade
+   classes. */
+.picker-cell.pick-approximated .picker-mark { color: var(--warn); }
+.picker-cell.pick-unsupported .picker-mark { color: var(--text-dim); }
+
+/* ---- fill density: how much is behind the cell -------------------------- */
+
+/* The number of assessments behind a cell, drawn as its ground: a fill that
+   rises from the foot and fades out at half height, in five steps. It is
+   independent of the grade glyph. It stops at 50% so it never reaches the
+   atomic number, which has only 4.55:1 contrast on `--surface-2` to spare. */
+/* Five explicit colours at a fixed hue (oklch 281°), climbing in lightness and
+   chroma out of the cell ground so the steps read as an order. Alpha on
+   `--tertiary` does not work: it sits at the ground's luminance, so the steps
+   differ in chroma only. The gradient's far stop is the same rgb at zero alpha,
+   so the fade does not pass through grey. */
+.picker-dens[data-density] {
+    background-image: linear-gradient(to top,
+        rgb(var(--dens) / 1) 0%,
+        rgb(var(--dens) / 0) 50%);
+}
+
+/* Step 0 is no fill at all. picker.js uses it before an element is picked,
+   once a pair is open, on the selected cell, and on cells with nothing to
+   offer. */
+.picker-dens[data-density="0"] { background-image: none; }
+.picker-dens[data-density="1"] { --dens: 53 55 90; }
+.picker-dens[data-density="2"] { --dens: 62 63 114; }
+.picker-dens[data-density="3"] { --dens: 72 72 137; }
+.picker-dens[data-density="4"] { --dens: 82 81 160; }
+.picker-dens[data-density="5"] { --dens: 92 91 183; }
+
+.picker-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    list-style: none;
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+}
+
+.picker-key {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.picker-swatch {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--fs-caption);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+}
+
+/* Legend swatches follow the cells. `full` has no rule, so its swatch is an
+   empty square, like its unmarked cell. */
+.picker-key.pick-approximated .picker-swatch { color: var(--warn); }
+.picker-key.pick-unsupported .picker-swatch { color: var(--text-dim); }
+.picker-key.pick-absent .picker-swatch {
+    background: transparent;
+    border-color: rgba(58, 64, 72, 0.45);
+    color: transparent;
+}
+
+/* The fill key is a row of solid swatches, one per step, using the cells' own
+   `--dens` colours so the two cannot drift apart. Solid because an 18 px square
+   cannot show the cells' half-height fade. */
+.picker-ramp {
+    display: inline-flex;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.picker-ramp .picker-swatch {
+    width: 14px;
+    background-image: linear-gradient(rgb(var(--dens)) 0 100%);
+}
+
+@media (max-width: 900px) {
+    .picker-symbol { font-size: var(--fs-caption); }
+    .picker-z { display: none; }
+    .picker-container { padding: 16px; }
+}
+
+/* The first click, and both cells of an open pair. The ring is drawn over the
+   cell's grade mark rather than replacing it. */
+.picker-cell.is-selected {
+    border-color: var(--primary);
+    box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+/* ---- the chooser -------------------------------------------------------- */
+
+/* The list of assessments, opened in the page flow under the table. Its ground
+   is `--surface`, the same as the table's, so the two read as one surface. No
+   `max-height` and no inner scroll: the page already scrolls. */
+/* The padding is tight because at 1600x800 the whole grid plus two rows of the
+   list must fit on one screen. */
+.picker-expansion {
+    position: relative;
+    margin-top: 12px;
+    padding: 12px 28px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+}
+
+/* The accent frame says "now pick an assessment". picker.js sets `is-fresh`
+   only while no row is current, so it never shows alongside the
+   `.is-current` row's frame. */
+.picker-expansion.is-fresh {
+    border-color: var(--primary);
+}
+
+/* A close cross placed against this panel's padding. */
+.picker-expansion-close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: var(--fs-title);
+    line-height: 1;
+    cursor: pointer;
+}
+
+.picker-expansion-close:hover { color: var(--text); }
+
+/* No frame of its own: the expansion already frames it. */
+.picker-chooser {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* The padding leaves room for the absolutely positioned `×`, so a long pair
+   name does not run under it. */
+.picker-chooser h3 {
+    font-size: var(--fs-caption);
+    font-weight: 600;
+    color: var(--text);
+    padding-right: 28px;
+}
+
+/* One grid for the whole list, with every row a `subgrid` of it, so the
+   columns size to their content. The grade column must hold PHYSICS DROPPED
+   on one line. The detail column takes the rest and wraps; some rows run to
+   over a thousand characters, so no page width would unwrap it. */
+.picker-choice-table {
+    display: grid;
+    grid-template-columns: auto auto auto auto minmax(0, 1fr);
+    align-items: baseline;
+}
+
+.picker-choice-head,
+.picker-choice {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    align-items: baseline;
+    gap: 10px;
+    width: 100%;
+    padding: 5px 8px;
+    font: inherit;
+    font-size: var(--fs-caption);
+    text-align: left;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+/* Hover fills the row and underlines its id, but draws no frame: frames belong
+   to `.is-current` and to `.picker-expansion.is-fresh`. `--surface-2` because
+   the panel itself is `--surface`. */
+.picker-choice:hover { background: var(--surface-2); }
+
+.picker-choice:hover .picker-choice-id {
+    color: var(--link);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--link) 45%, transparent);
+    text-underline-offset: 3px;
+}
+
+/* The assessment on the diagram now. The chooser stays open after a load, so
+   this marks where the reader is. */
+.picker-choice.is-current {
+    border-color: var(--primary);
+    background: var(--surface-2);
+}
+
+.picker-choice-id {
+    font-family: var(--mono);
+    font-weight: 600;
+}
+
+.picker-badge {
+    font-size: var(--fs-caption);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-dim);
+}
+
+/* Only PHYSICS DROPPED is coloured. MODELLED IN FULL keeps the badge's
+   `--text-dim`, so the normal case is not the loudest thing in the list. */
+.picker-choice.pick-approximated .picker-badge { color: var(--warn); }
+
+/* Numbers are right-aligned so outliers stand out down the column. */
+.picker-choice-head {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 700;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+    margin-bottom: 2px;
+}
+
+.picker-choice-head .num,
+.picker-choice-num { text-align: right; }
+
+.picker-choice-num {
+    font-family: var(--mono);
+    white-space: nowrap;
+}
+
+.picker-choice-loses {
+    font-family: var(--mono);
+    line-height: 1.45;
+    min-width: 0;
+}
+
+/* The words that repeat down the column are dim, so the phase names stand
+   out. */
+.picker-choice-dim { color: var(--text-dim); }
+
+.picker-choice-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0 4px;
+    white-space: nowrap;
+}
+
+/* Explains the approximations once, under the table, from the reasons in the
+   list. Built by `renderChooser` in picker.js. */
+.picker-chooser-foot {
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+    margin: 10px 0 0;
+    padding: 0 8px;
+}
+
+@media (max-width: 900px) {
+    .picker-choice {
+        grid-template-columns: 1fr;
+        gap: 2px;
+    }
+}
+
+
+/* The baseline comparison: a foldable `.rail-section` like the rest of the
+   rail, bare rather than a card. */
+.baseline-frame {
+    margin-bottom: 0;
+}
+
+.baseline-label {
+    display: block;
+    font-size: var(--fs-caption);
+    color: var(--text-dim);
+    margin-bottom: 6px;
+}
+
+.baseline-select {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: var(--fs-caption);
+    padding: 6px 8px;
+}
+
+.baseline-select:disabled { opacity: 0.55; }
+
+/* Smaller than the main drop zone: the select above is the primary way in,
+   being the only one a URL can carry. */
+.baseline-drop {
+    margin-top: 10px;
+    padding: 12px;
+}

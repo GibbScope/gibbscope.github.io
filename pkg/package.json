@@ -1,0 +1,16 @@
+{
+  "name": "calphad-wasm",
+  "type": "module",
+  "description": "CALPHAD Phase Diagram Visualization using Convex Hull",
+  "version": "1.0.0",
+  "files": [
+    "calphad_wasm_bg.wasm",
+    "calphad_wasm.js",
+    "calphad_wasm.d.ts"
+  ],
+  "main": "calphad_wasm.js",
+  "types": "calphad_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

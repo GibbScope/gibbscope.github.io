@@ -1,0 +1,127 @@
+# Cr-Ni phase-boundary data. x = mole fraction Ni. Load CrNi-16Tan.tdb first.
+#
+# Source: the PARROT experimental file (.POP) published with F. Tang and
+# B. Hallstedt, "Using the PARROT module of Thermo-Calc with the Cr-Ni system as
+# example", Calphad 55 (2016) 260-269. The values are the measurements of the
+# studies named in the source column (Thermo-Calc keys: 34Jet, 37Jen, 51Tay,
+# 58Bae, 62Sve, 63Den, 70Pug, 82Kar, 88Col); full references are in that paper.
+#
+# Converted with app/pop.js, so the rows are what the app reads from the POP:
+#   * x is 1 - x(Cr). Uncertainties and weights are the POP's: 0.02 in x on the
+#     solvus tables, 10 K in T on the liquidus and solidus tables, and the
+#     SET-WEIGHT of each study.
+#   * The 88Col fcc solvus is commented out in the POP and is not here.
+#   * The six 62Sve rows the POP weights 0 are left out. They sit in the Ni/fcc
+#     solidus table, and five of them repeat the 62Sve bcc solidus with x
+#     mirrored.
+#   * Added by hand from blocks the reader refuses:
+#       - the eutectic: T = 1618 +/- 5 K (credited to 37Jen) and the three phase
+#         compositions +/- 0.01, in two separate POP blocks. The POP weights the
+#         T at 5; it is 1 here, like the compositions.
+#       - the CrNi2 reaction at 863 +/- 5 K. The POP gives no composition; x is
+#         the CrNi2 stoichiometry, which the model fixes.
+#   * Not here: the mixing enthalpies and activities. They are not phase-diagram
+#     points.
+#
+x,T,kind,x_err,T_err,phase,weight,source
+0.461,1618,invariant,0.01,5,LIQUID,1,Eutectic (POP)
+0.362,1618,invariant,0.01,5,BCC_A2,1,Eutectic (POP)
+0.5,1618,invariant,0.01,5,FCC_A1,1,Eutectic (POP)
+0.6667,863,invariant,0,5,CRNI2,1,CrNi2 (POP)
+0.5126,1473,boundary,0.02,0,FCC_A1,3,51Tay
+0.5245,1373,boundary,0.02,0,FCC_A1,3,51Tay
+0.5482,1273,boundary,0.02,0,FCC_A1,3,51Tay
+0.5861,1173,boundary,0.02,0,FCC_A1,3,51Tay
+0.6204,1023,boundary,0.02,0,FCC_A1,3,51Tay
+0.5592,1227,boundary,0.02,0,FCC_A1,2,82Kar
+0.5712,1173,boundary,0.02,0,FCC_A1,2,82Kar
+0.5995,1072,boundary,0.02,0,FCC_A1,2,82Kar
+0.6258,973,boundary,0.02,0,FCC_A1,2,82Kar
+0.6563,875,boundary,0.02,0,FCC_A1,2,82Kar
+0.667,824,boundary,0.02,0,FCC_A1,2,82Kar
+0.6846,812,boundary,0.02,0,FCC_A1,0.7,58Bae
+0.6629,890,boundary,0.02,0,FCC_A1,0.7,58Bae
+0.6542,958,boundary,0.02,0,FCC_A1,0.7,58Bae
+0.6355,1024,boundary,0.02,0,FCC_A1,0.7,58Bae
+0.6081,1111,boundary,0.02,0,FCC_A1,0.7,58Bae
+0.534,1454,boundary,0.02,0,FCC_A1,1,70Pug
+0.5498,1379,boundary,0.02,0,FCC_A1,1,70Pug
+0.5688,1278,boundary,0.02,0,FCC_A1,1,70Pug
+0.587,1177,boundary,0.02,0,FCC_A1,1,70Pug
+0.6037,1078,boundary,0.02,0,FCC_A1,1,70Pug
+0.0147,796,boundary,0.02,0,BCC_A2,1,34Jet
+0.0181,944,boundary,0.02,0,BCC_A2,1,34Jet
+0.0205,1011,boundary,0.02,0,BCC_A2,1,34Jet
+0.0263,1122,boundary,0.02,0,BCC_A2,1,34Jet
+0.0239,1139,boundary,0.02,0,BCC_A2,1,34Jet
+0.0422,1162,boundary,0.02,0,BCC_A2,1,34Jet
+0.0479,1218,boundary,0.02,0,BCC_A2,1,34Jet
+0.0575,1245,boundary,0.02,0,BCC_A2,1,34Jet
+0.0742,1297,boundary,0.02,0,BCC_A2,1,34Jet
+0.3038,1471,boundary,0.02,0,BCC_A2,1.4,88Col
+0.2446,1419,boundary,0.02,0,BCC_A2,1.4,88Col
+0.1502,1368,boundary,0.02,0,BCC_A2,1.4,88Col
+0.0953,1319,boundary,0.02,0,BCC_A2,1.4,88Col
+0.0774,1268,boundary,0.02,0,BCC_A2,1.4,88Col
+0.0457,1219,boundary,0.02,0,BCC_A2,1.4,88Col
+0.0398,1167,boundary,0.02,0,BCC_A2,1.4,88Col
+0.0275,1119,boundary,0.02,0,BCC_A2,1.4,88Col
+0.0216,1068,boundary,0.02,0,BCC_A2,1.4,88Col
+0.3535,1558,boundary,0.02,0,BCC_A2,1.5,63Den
+0.3263,1512,boundary,0.02,0,BCC_A2,1.5,63Den
+0.3032,1481,boundary,0.02,0,BCC_A2,1.5,63Den
+0.2031,1402,boundary,0.02,0,BCC_A2,1.5,63Den
+0.1022,1347,boundary,0.02,0,BCC_A2,1.5,63Den
+0.95,1716,boundary,0,10,LIQUID,1,37Jen
+0.9,1708,boundary,0,10,LIQUID,1,37Jen
+0.85,1701,boundary,0,10,LIQUID,1,37Jen
+0.8,1697,boundary,0,10,LIQUID,1,37Jen
+0.76,1683,boundary,0,10,LIQUID,1,37Jen
+0.75,1683,boundary,0,10,LIQUID,1,37Jen
+0.7,1669,boundary,0,10,LIQUID,1,37Jen
+0.65,1660,boundary,0,10,LIQUID,1,37Jen
+0.6,1650,boundary,0,10,LIQUID,1,37Jen
+0.53,1629,boundary,0,10,LIQUID,1,37Jen
+0.51,1625,boundary,0,10,LIQUID,1,37Jen
+0.5,1622,boundary,0,10,LIQUID,1,37Jen
+0.49,1625,boundary,0,10,LIQUID,1,37Jen
+0.09,2058,boundary,0,10,LIQUID,1,62Sve
+0.16,1985,boundary,0,10,LIQUID,1,62Sve
+0.21,1937,boundary,0,10,LIQUID,1,62Sve
+0.31,1816,boundary,0,10,LIQUID,1,62Sve
+0.33,1783,boundary,0,10,LIQUID,1,62Sve
+0.35,1751,boundary,0,10,LIQUID,1,62Sve
+0.37,1726,boundary,0,10,LIQUID,1,62Sve
+0.39,1704,boundary,0,10,LIQUID,1,62Sve
+0.4,1680,boundary,0,10,LIQUID,1,62Sve
+0.43,1658,boundary,0,10,LIQUID,1,62Sve
+0.47,1627,boundary,0,10,LIQUID,1,37Jen
+0.45,1636,boundary,0,10,LIQUID,1,37Jen
+0.43,1670,boundary,0,10,LIQUID,1,37Jen
+0.4,1684,boundary,0,10,LIQUID,1,37Jen
+0.35,1748,boundary,0,10,LIQUID,1,37Jen
+0.3,1800,boundary,0,10,LIQUID,1,37Jen
+0.09,1941,boundary,0,10,BCC_A2,1,62Sve
+0.17,1822,boundary,0,10,BCC_A2,1,62Sve
+0.23,1768,boundary,0,10,BCC_A2,1,62Sve
+0.34,1670,boundary,0,10,BCC_A2,1,62Sve
+0.36,1649,boundary,0,10,BCC_A2,1,62Sve
+0.39,1613,boundary,0,10,BCC_A2,0.5,37Jen
+0.38,1613,boundary,0,10,BCC_A2,0.5,37Jen
+0.35,1611,boundary,0,10,BCC_A2,0.5,37Jen
+0.33,1615,boundary,0,10,BCC_A2,0.5,37Jen
+0.3,1623,boundary,0,10,BCC_A2,0.5,37Jen
+0.95,1703,boundary,0,10,FCC_A1,1,37Jen
+0.9,1706,boundary,0,10,FCC_A1,1,37Jen
+0.85,1683,boundary,0,10,FCC_A1,1,37Jen
+0.8,1680,boundary,0,10,FCC_A1,1,37Jen
+0.75,1674,boundary,0,10,FCC_A1,1,37Jen
+0.7,1659,boundary,0,10,FCC_A1,1,37Jen
+0.65,1647,boundary,0,10,FCC_A1,1,37Jen
+0.6,1628,boundary,0,10,FCC_A1,1,37Jen
+0.58,1634,boundary,0,10,FCC_A1,1,37Jen
+0.55,1634,boundary,0,10,FCC_A1,1,37Jen
+0.53,1625,boundary,0,10,FCC_A1,1,37Jen
+0.51,1602,boundary,0,10,FCC_A1,1,37Jen
+0.5,1612,boundary,0,10,FCC_A1,1,37Jen
+0.49,1602,boundary,0,10,FCC_A1,1,37Jen

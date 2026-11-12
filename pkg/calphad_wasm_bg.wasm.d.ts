@@ -1,0 +1,33 @@
+/* tslint:disable */
+/* eslint-disable */
+export const memory: WebAssembly.Memory;
+export const engine_version: () => [number, number];
+export const get_grid_height: () => number;
+export const get_peak_heap_bytes: () => number;
+export const get_t_max: () => number;
+export const get_t_min: () => number;
+export const get_wasm_rss_bytes: () => number;
+export const get_grid_width: () => number;
+export const reset_heap_tracker: () => void;
+export const __wbg_tdbhandle_free: (a: number, b: number) => void;
+export const load_tdb: (a: number, b: number) => [number, number, number];
+export const tdbhandle_compute_boundaries: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => [number, number, number];
+export const tdbhandle_export_tdb: (a: number, b: number, c: number) => [number, number];
+export const tdbhandle_fit: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number) => [number, number];
+export const tdbhandle_fitted_t_max: (a: number, b: number, c: number) => number;
+export const tdbhandle_g_compound: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
+export const tdbhandle_g_curve: (a: number, b: number, c: number, d: number, e: number, f: number) => [number, number];
+export const tdbhandle_g_curve_window: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => [number, number];
+export const tdbhandle_ghost_boundaries: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number];
+export const tdbhandle_info: (a: number) => [number, number];
+export const tdbhandle_phase_at: (a: number, b: number, c: number, d: number, e: number) => number;
+export const tdbhandle_t_max: (a: number) => number;
+export const tdbhandle_t_min: (a: number) => number;
+export const tdbhandle_tangents: (a: number, b: number, c: number, d: number) => [number, number];
+export const tdbhandle_tie_line_at: (a: number, b: number, c: number, d: number, e: number) => [number, number];
+export const __wbindgen_malloc: (a: number, b: number) => number;
+export const __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
+export const __wbindgen_externrefs: WebAssembly.Table;
+export const __wbindgen_free: (a: number, b: number, c: number) => void;
+export const __externref_table_dealloc: (a: number) => void;
+export const __wbindgen_start: () => void;

@@ -1,0 +1,226 @@
+# Ag-Cu liquidus, solidus and solvus measurements. x = mole fraction Cu, T in K.
+# Load AgCu-86Hay.tdb first. Phase names are that database's.
+#
+# 1897Hey: C.T. Heycock and F.H. Neville, Phil. Trans. R. Soc. A 189 (1897)
+#   25-70, DOI 10.1098/rsta.1897.0002, Tables Ia, Ib and Ic. First freezing
+#   points. x is the printed atomic percent / 100 (Table Ib prints silver, so
+#   x = 1 - at% Ag / 100); T is the printed reading + 273.15, on the authors'
+#   own scale, on which silver freezes at 960.0 and 959.3 C and copper at
+#   1081.5 C. Table Ic's second-day readings are as printed; the authors take
+#   1 C off them when drawing their curve. Subramanian and Perepezko's Table 2
+#   (below) reprints Table Ib's 1019.6 and 1020.8 C at 8.05 at% Ag as 1026.8 C;
+#   the original values are used.
+#
+# 07Fri, 27Hir, 32Bro, 32Smi, 62Dob, 67Ros: thermal-analysis liquidus data as
+#   compiled in P.R. Subramanian and J.H. Perepezko, J. Phase Equilib. 14 (1993)
+#   62-75, DOI 10.1007/BF02652162, Table 2. The keys are that paper's, and its
+#   reference list gives each study. Values are as printed there, including
+#   three that sit off the other studies: 32Bro at 15.9 at% Cu (835 C, about
+#   37 K below its neighbours), 62Dob at 75.1 at% (957 C) and 67Ros at 75.9 at%
+#   (960 C), both about 27 K above the rest.
+#
+# 92Bie: M. Bienzle, T. Oishi, F. Sommer and K. Ono, Mater. Trans. JIM 33 (1992)
+#   51-56, DOI 10.2320/matertrans1989.33.51, Table 7. Solidus and solvus of the
+#   Ag-rich solid solution, from EMF measurements; T_err is the stated +/-5 K.
+#   The authors note that their boundaries differ from those in Hansen's
+#   compilation. Their solidus lies below the thermal-analysis one.
+#
+# No other uncertainties are stated, so x_err and T_err are otherwise the app's
+# defaults.
+#
+# Left out:
+#   - Heycock and Neville's 11 eutectic arrests (777.15-778.6 C). Each was
+#     measured at the alloy's overall composition. The format scores an
+#     invariant point against one phase's composition at the reaction, so these
+#     would read as up to 13 sigma off a reaction they lie on to within 5 K.
+#   - Their two Table Ia series-2 readings at 5.86 and 16.00 at% Cu, which they
+#     attribute to silver not yet fully molten when the copper was added.
+#   - 70Cho in Subramanian and Perepezko's Table 2: a liquidus from EMF measurements, not thermal
+#     analysis.
+#
+x,T,kind,x_err,T_err,phase,weight,source
+0,1233.15,liquidus,0,0,LIQUID,1,1897Hey
+0.0052,1230.35,liquidus,0,0,LIQUID,1,1897Hey
+0.0102,1227.45,liquidus,0,0,LIQUID,1,1897Hey
+0.0201,1221.85,liquidus,0,0,LIQUID,1,1897Hey
+0.0381,1211.75,liquidus,0,0,LIQUID,1,1897Hey
+0.0623,1198.45,liquidus,0,0,LIQUID,1,1897Hey
+0.105,1175.55,liquidus,0,0,LIQUID,1,1897Hey
+0.1799,1138.05,liquidus,0,0,LIQUID,1,1897Hey
+0,1232.45,liquidus,0,0,LIQUID,1,1897Hey
+0.2188,1120.45,liquidus,0,0,LIQUID,1,1897Hey
+0.2708,1098.45,liquidus,0,0,LIQUID,1,1897Hey
+0.3218,1078.15,liquidus,0,0,LIQUID,1,1897Hey
+0.3448,1070.15,liquidus,0,0,LIQUID,1,1897Hey
+0.3667,1062.05,liquidus,0,0,LIQUID,1,1897Hey
+0.387,1054.85,liquidus,0,0,LIQUID,1,1897Hey
+0.4,1051.8,liquidus,0,0,LIQUID,1,1897Hey
+0.4118,1052.25,liquidus,0,0,LIQUID,1,1897Hey
+0.435,1063.45,liquidus,0,0,LIQUID,1,1897Hey
+0.4675,1078.45,liquidus,0,0,LIQUID,1,1897Hey
+0.5022,1091.95,liquidus,0,0,LIQUID,1,1897Hey
+0.0755,1190.15,liquidus,0,0,LIQUID,1,1897Hey
+0.1401,1156.85,liquidus,0,0,LIQUID,1,1897Hey
+0.1483,1153.15,liquidus,0,0,LIQUID,1,1897Hey
+0.1573,1148.55,liquidus,0,0,LIQUID,1,1897Hey
+0.1667,1143.85,liquidus,0,0,LIQUID,1,1897Hey
+0.177,1139.15,liquidus,0,0,LIQUID,1,1897Hey
+0.1877,1134.25,liquidus,0,0,LIQUID,1,1897Hey
+0.1986,1129.45,liquidus,0,0,LIQUID,1,1897Hey
+0.2087,1124.95,liquidus,0,0,LIQUID,1,1897Hey
+0.2203,1119.85,liquidus,0,0,LIQUID,1,1897Hey
+0.237,1112.65,liquidus,0,0,LIQUID,1,1897Hey
+0.2703,1098.65,liquidus,0,0,LIQUID,1,1897Hey
+1,1354.65,liquidus,0,0,LIQUID,1,1897Hey
+0.997,1352.25,liquidus,0,0,LIQUID,1,1897Hey
+0.9873,1344.25,liquidus,0,0,LIQUID,1,1897Hey
+0.9728,1332.25,liquidus,0,0,LIQUID,1,1897Hey
+0.9583,1321.25,liquidus,0,0,LIQUID,1,1897Hey
+0.9195,1292.75,liquidus,0,0,LIQUID,1,1897Hey
+0.9195,1293.95,liquidus,0,0,LIQUID,1,1897Hey
+0.8833,1269.65,liquidus,0,0,LIQUID,1,1897Hey
+0.8502,1249.15,liquidus,0,0,LIQUID,1,1897Hey
+0.8093,1226.65,liquidus,0,0,LIQUID,1,1897Hey
+0.7723,1207.55,liquidus,0,0,LIQUID,1,1897Hey
+0.7385,1190.55,liquidus,0,0,LIQUID,1,1897Hey
+0.7385,1189.65,liquidus,0,0,LIQUID,1,1897Hey
+0.7016,1173.35,liquidus,0,0,LIQUID,1,1897Hey
+0.6578,1154.75,liquidus,0,0,LIQUID,1,1897Hey
+0.6194,1139.65,liquidus,0,0,LIQUID,1,1897Hey
+0.5852,1126.05,liquidus,0,0,LIQUID,1,1897Hey
+0.5473,1110.35,liquidus,0,0,LIQUID,1,1897Hey
+0.5141,1096.85,liquidus,0,0,LIQUID,1,1897Hey
+0.3803,1056.59,liquidus,0,0,LIQUID,1,1897Hey
+0.387,1053.55,liquidus,0,0,LIQUID,1,1897Hey
+0.3933,1052.26,liquidus,0,0,LIQUID,1,1897Hey
+0.3987,1050.74,liquidus,0,0,LIQUID,1,1897Hey
+0.4027,1050.91,liquidus,0,0,LIQUID,1,1897Hey
+0.4118,1053.6,liquidus,0,0,LIQUID,1,1897Hey
+0.4118,1054.64,liquidus,0,0,LIQUID,1,1897Hey
+0.4263,1060.24,liquidus,0,0,LIQUID,1,1897Hey
+0,1234.15,liquidus,0,0,LIQUID,1,07Fri
+0.033,1216.15,liquidus,0,0,LIQUID,1,07Fri
+0.066,1204.15,liquidus,0,0,LIQUID,1,07Fri
+0.082,1195.15,liquidus,0,0,LIQUID,1,07Fri
+0.098,1191.15,liquidus,0,0,LIQUID,1,07Fri
+0.129,1177.15,liquidus,0,0,LIQUID,1,07Fri
+0.159,1163.15,liquidus,0,0,LIQUID,1,07Fri
+0.298,1092.15,liquidus,0,0,LIQUID,1,07Fri
+0.398,1051.15,liquidus,0,0,LIQUID,1,07Fri
+0.421,1058.15,liquidus,0,0,LIQUID,1,07Fri
+0.531,1090.15,liquidus,0,0,LIQUID,1,07Fri
+0.629,1129.15,liquidus,0,0,LIQUID,1,07Fri
+0.718,1171.15,liquidus,0,0,LIQUID,1,07Fri
+0.759,1189.15,liquidus,0,0,LIQUID,1,07Fri
+0.798,1211.15,liquidus,0,0,LIQUID,1,07Fri
+0.836,1231.15,liquidus,0,0,LIQUID,1,07Fri
+0.872,1251.15,liquidus,0,0,LIQUID,1,07Fri
+0.906,1279.15,liquidus,0,0,LIQUID,1,07Fri
+0.939,1301.15,liquidus,0,0,LIQUID,1,07Fri
+0.97,1329.15,liquidus,0,0,LIQUID,1,07Fri
+1,1357.15,liquidus,0,0,LIQUID,1,07Fri
+0,1235.15,liquidus,0,0,LIQUID,1,27Hir
+0.033,1216.15,liquidus,0,0,LIQUID,1,27Hir
+0.066,1199.15,liquidus,0,0,LIQUID,1,27Hir
+0.074,1194.15,liquidus,0,0,LIQUID,1,27Hir
+0.082,1187.15,liquidus,0,0,LIQUID,1,27Hir
+0.09,1186.15,liquidus,0,0,LIQUID,1,27Hir
+0.098,1182.15,liquidus,0,0,LIQUID,1,27Hir
+0.159,1148.15,liquidus,0,0,LIQUID,1,27Hir
+0.298,1078.15,liquidus,0,0,LIQUID,1,27Hir
+0.361,1056.15,liquidus,0,0,LIQUID,1,27Hir
+0.399,1053.15,liquidus,0,0,LIQUID,1,27Hir
+0.404,1051.15,liquidus,0,0,LIQUID,1,27Hir
+0.421,1054.15,liquidus,0,0,LIQUID,1,27Hir
+0.478,1071.15,liquidus,0,0,LIQUID,1,27Hir
+0.531,1091.15,liquidus,0,0,LIQUID,1,27Hir
+0.629,1129.15,liquidus,0,0,LIQUID,1,27Hir
+0.718,1166.15,liquidus,0,0,LIQUID,1,27Hir
+0.798,1209.15,liquidus,0,0,LIQUID,1,27Hir
+0.872,1251.15,liquidus,0,0,LIQUID,1,27Hir
+0.939,1301.15,liquidus,0,0,LIQUID,1,27Hir
+0.964,1318.15,liquidus,0,0,LIQUID,1,27Hir
+0.967,1321.15,liquidus,0,0,LIQUID,1,27Hir
+0.97,1328.15,liquidus,0,0,LIQUID,1,27Hir
+0.973,1330.15,liquidus,0,0,LIQUID,1,27Hir
+0.976,1333.15,liquidus,0,0,LIQUID,1,27Hir
+0.988,1345.15,liquidus,0,0,LIQUID,1,27Hir
+1,1357.15,liquidus,0,0,LIQUID,1,27Hir
+0.9267,1297.15,liquidus,0,0,LIQUID,1,32Smi
+0.9388,1307.15,liquidus,0,0,LIQUID,1,32Smi
+0.9513,1316.15,liquidus,0,0,LIQUID,1,32Smi
+0.9639,1325.15,liquidus,0,0,LIQUID,1,32Smi
+0.976,1334.15,liquidus,0,0,LIQUID,1,32Smi
+0.9875,1345.15,liquidus,0,0,LIQUID,1,32Smi
+0.033,1215.15,liquidus,0,0,LIQUID,1,32Bro
+0.076,1183.15,liquidus,0,0,LIQUID,1,32Bro
+0.082,1191.15,liquidus,0,0,LIQUID,1,32Bro
+0.106,1180.15,liquidus,0,0,LIQUID,1,32Bro
+0.113,1181.15,liquidus,0,0,LIQUID,1,32Bro
+0.136,1171.15,liquidus,0,0,LIQUID,1,32Bro
+0.144,1163.15,liquidus,0,0,LIQUID,1,32Bro
+0.159,1108.15,liquidus,0,0,LIQUID,1,32Bro
+0.231,1119.15,liquidus,0,0,LIQUID,1,32Bro
+0.298,1090.15,liquidus,0,0,LIQUID,1,32Bro
+0.361,1067.15,liquidus,0,0,LIQUID,1,32Bro
+0.375,1060.15,liquidus,0,0,LIQUID,1,32Bro
+0.404,1052.15,liquidus,0,0,LIQUID,1,32Bro
+0.531,1103.15,liquidus,0,0,LIQUID,1,32Bro
+0.629,1150.15,liquidus,0,0,LIQUID,1,32Bro
+0.718,1184.15,liquidus,0,0,LIQUID,1,32Bro
+0.798,1223.15,liquidus,0,0,LIQUID,1,32Bro
+0.872,1269.15,liquidus,0,0,LIQUID,1,32Bro
+0.939,1299.15,liquidus,0,0,LIQUID,1,32Bro
+0.961,1331.15,liquidus,0,0,LIQUID,1,32Bro
+0.97,1341.15,liquidus,0,0,LIQUID,1,32Bro
+0.986,1346.15,liquidus,0,0,LIQUID,1,32Bro
+0,1232.15,liquidus,0,0,LIQUID,1,62Dob
+0.042,1223.15,liquidus,0,0,LIQUID,1,62Dob
+0.05,1218.15,liquidus,0,0,LIQUID,1,62Dob
+0.098,1206.15,liquidus,0,0,LIQUID,1,62Dob
+0.121,1190.15,liquidus,0,0,LIQUID,1,62Dob
+0.181,1153.15,liquidus,0,0,LIQUID,1,62Dob
+0.202,1152.15,liquidus,0,0,LIQUID,1,62Dob
+0.298,1083.15,liquidus,0,0,LIQUID,1,62Dob
+0.336,1078.15,liquidus,0,0,LIQUID,1,62Dob
+0.404,1048.15,liquidus,0,0,LIQUID,1,62Dob
+0.444,1048.15,liquidus,0,0,LIQUID,1,62Dob
+0.581,1130.15,liquidus,0,0,LIQUID,1,62Dob
+0.591,1140.15,liquidus,0,0,LIQUID,1,62Dob
+0.61,1148.15,liquidus,0,0,LIQUID,1,62Dob
+0.751,1230.15,liquidus,0,0,LIQUID,1,62Dob
+0.865,1256.15,liquidus,0,0,LIQUID,1,62Dob
+0.872,1265.15,liquidus,0,0,LIQUID,1,62Dob
+0.939,1303.15,liquidus,0,0,LIQUID,1,62Dob
+0.954,1312.15,liquidus,0,0,LIQUID,1,62Dob
+0.964,1328.15,liquidus,0,0,LIQUID,1,62Dob
+0.97,1327.15,liquidus,0,0,LIQUID,1,62Dob
+1,1358.15,liquidus,0,0,LIQUID,1,62Dob
+0,1235.15,liquidus,0,0,LIQUID,1,67Ros
+0.034,1223.15,liquidus,0,0,LIQUID,1,67Ros
+0.05,1216.15,liquidus,0,0,LIQUID,1,67Ros
+0.098,1203.15,liquidus,0,0,LIQUID,1,67Ros
+0.121,1193.15,liquidus,0,0,LIQUID,1,67Ros
+0.188,1153.15,liquidus,0,0,LIQUID,1,67Ros
+0.209,1153.15,liquidus,0,0,LIQUID,1,67Ros
+0.311,1081.15,liquidus,0,0,LIQUID,1,67Ros
+0.343,1081.15,liquidus,0,0,LIQUID,1,67Ros
+0.591,1135.15,liquidus,0,0,LIQUID,1,67Ros
+0.615,1153.15,liquidus,0,0,LIQUID,1,67Ros
+0.759,1233.15,liquidus,0,0,LIQUID,1,67Ros
+0.879,1260.15,liquidus,0,0,LIQUID,1,67Ros
+0.886,1266.15,liquidus,0,0,LIQUID,1,67Ros
+0.958,1308.15,liquidus,0,0,LIQUID,1,67Ros
+0.967,1321.15,liquidus,0,0,LIQUID,1,67Ros
+0.976,1336.15,liquidus,0,0,LIQUID,1,67Ros
+0.982,1336.15,liquidus,0,0,LIQUID,1,67Ros
+0.0198,1201,solidus,0,5,FCC_A1,1,92Bie
+0.0385,1132,solidus,0,5,FCC_A1,1,92Bie
+0.0606,1100,solidus,0,5,FCC_A1,1,92Bie
+0.0785,1086,solidus,0,5,FCC_A1,1,92Bie
+0.0986,1080,solidus,0,5,FCC_A1,1,92Bie
+0.0198,794,solvus,0,5,FCC_A1,1,92Bie
+0.0385,909,solvus,0,5,FCC_A1,1,92Bie
+0.0606,980,solvus,0,5,FCC_A1,1,92Bie
+0.0785,1020,solvus,0,5,FCC_A1,1,92Bie
+0.0986,1033,solvus,0,5,FCC_A1,1,92Bie

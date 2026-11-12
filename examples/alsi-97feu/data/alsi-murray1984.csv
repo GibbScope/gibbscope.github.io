@@ -1,0 +1,129 @@
+# Al-Si liquidus, (Al) solvus and (Al) solidus measurements. x = mole fraction
+# Si, T in K. Load AlSi-97Feu-LB.tdb first. Phase names are that database's:
+# (Al) is FCC_A1.
+#
+# Source: the tables of J.L. Murray and A.J. McAlister, "The Al-Si
+# (Aluminum-Silicon) System", Bull. Alloy Phase Diagrams 5 (1984) 74-84,
+# DOI 10.1007/BF02868729:
+#   - Table 2, liquidus: 34Mat, 47Sin, 55Cra, 69Ber, 76Kob1, 76Kob2
+#   - Table 3, (Al) solvus: 27Gwy/28Gwy, 28Dix, 31Los, 40Dur, 42Bor, 42Tre,
+#     66Kov, 68Dri
+#   - Table 4, (Al) solidus: 26Ota, 28Dix, 29Ana, 47Sin, 61Gla
+# The keys are that paper's, and its reference list gives each study. x is the
+# printed atomic percent / 100, T the printed degrees C + 273.15.
+#
+# Murray and McAlister weight 69Ber and 55Cra most heavily for the liquidus,
+# and note that impurities put some early Al-rich liquidus arrests up to 15 C
+# low. They give a scatter of +/-0.06 at% Si between the solvus studies; that
+# is x_err on the solvus rows, and on the solidus rows, for which they give
+# none. Other uncertainties are the app's defaults.
+#
+# Left out:
+#   - The eutectic arrests in Table 2 (47Sin, 55Cra, 69Ber; 574-578 C). They
+#     were measured at the alloy's overall composition, and the format scores
+#     an invariant point against one phase's composition at the reaction.
+#   - Table 5, the (Si) solidus: above 99.97 at% Si, too close to pure Si to
+#     show on this axis.
+#
+x,T,kind,x_err,T_err,phase,weight,source
+0.078,881.15,liquidus,0,0,LIQUID,1,47Sin
+0.0394,908.15,liquidus,0,0,LIQUID,1,47Sin
+0.0144,924.15,liquidus,0,0,LIQUID,1,47Sin
+0.0115,925.15,liquidus,0,0,LIQUID,1,47Sin
+0.0093,927.15,liquidus,0,0,LIQUID,1,47Sin
+0.0052,928.15,liquidus,0,0,LIQUID,1,47Sin
+0.1323,871.15,liquidus,0,0,LIQUID,1,55Cra
+0.1226,854.15,liquidus,0,0,LIQUID,1,55Cra
+0.1179,851.15,liquidus,0,0,LIQUID,1,55Cra
+0.1079,857.15,liquidus,0,0,LIQUID,1,55Cra
+0.0771,883.15,liquidus,0,0,LIQUID,1,55Cra
+0.0472,903.15,liquidus,0,0,LIQUID,1,55Cra
+0.351,1160.15,liquidus,0,0,LIQUID,1,69Ber
+0.291,1075.15,liquidus,0,0,LIQUID,1,69Ber
+0.262,1039.15,liquidus,0,0,LIQUID,1,69Ber
+0.242,1015.15,liquidus,0,0,LIQUID,1,69Ber
+0.213,982.15,liquidus,0,0,LIQUID,1,69Ber
+0.193,955.15,liquidus,0,0,LIQUID,1,69Ber
+0.164,905.15,liquidus,0,0,LIQUID,1,69Ber
+0.145,875.15,liquidus,0,0,LIQUID,1,69Ber
+0.116,853.15,liquidus,0,0,LIQUID,1,69Ber
+0.096,871.15,liquidus,0,0,LIQUID,1,69Ber
+0.068,890.15,liquidus,0,0,LIQUID,1,69Ber
+0.048,901.15,liquidus,0,0,LIQUID,1,69Ber
+0.02,915.15,liquidus,0,0,LIQUID,1,69Ber
+0.058,894.15,liquidus,0,0,LIQUID,1,76Kob2
+0.077,878.65,liquidus,0,0,LIQUID,1,76Kob2
+0.096,861.15,liquidus,0,0,LIQUID,1,76Kob2
+0.194,973.15,liquidus,0,0,LIQUID,1,76Kob1
+0.077,878.15,liquidus,0,0,LIQUID,1,34Mat
+0.145,893.15,liquidus,0,0,LIQUID,1,34Mat
+0.194,957.15,liquidus,0,0,LIQUID,1,34Mat
+0.292,1075.15,liquidus,0,0,LIQUID,1,34Mat
+0.39,1188.15,liquidus,0,0,LIQUID,1,34Mat
+0.49,1278.15,liquidus,0,0,LIQUID,1,34Mat
+0.59,1380.15,liquidus,0,0,LIQUID,1,34Mat
+0.692,1473.15,liquidus,0,0,LIQUID,1,34Mat
+0.794,1545.15,liquidus,0,0,LIQUID,1,34Mat
+0.896,1640.15,liquidus,0,0,LIQUID,1,34Mat
+0.015,848.15,solvus,0.0006,0,FCC_A1,1,27Gwy/28Gwy
+0.0114,821.15,solvus,0.0006,0,FCC_A1,1,27Gwy/28Gwy
+0.0088,795.15,solvus,0.0006,0,FCC_A1,1,27Gwy/28Gwy
+0.0035,723.15,solvus,0.0006,0,FCC_A1,1,27Gwy/28Gwy
+0.0014,573.15,solvus,0.0006,0,FCC_A1,1,27Gwy/28Gwy
+0.0136,843.15,solvus,0.0006,0,FCC_A1,1,28Dix
+0.0124,823.15,solvus,0.0006,0,FCC_A1,1,28Dix
+0.0078,773.15,solvus,0.0006,0,FCC_A1,1,28Dix
+0.0046,723.15,solvus,0.0006,0,FCC_A1,1,28Dix
+0.0029,673.15,solvus,0.0006,0,FCC_A1,1,28Dix
+0.0017,623.15,solvus,0.0006,0,FCC_A1,1,28Dix
+0.0005,555.15,solvus,0.0006,0,FCC_A1,1,66Kov
+0.0008,588.15,solvus,0.0006,0,FCC_A1,1,66Kov
+0.001,600.15,solvus,0.0006,0,FCC_A1,1,66Kov
+0.0024,673.15,solvus,0.0006,0,FCC_A1,1,68Dri
+0.0072,773.15,solvus,0.0006,0,FCC_A1,1,68Dri
+0.0096,798.15,solvus,0.0006,0,FCC_A1,1,68Dri
+0.0125,838.15,solvus,0.0006,0,FCC_A1,1,68Dri
+0.0012,493.15,solvus,0.0006,0,FCC_A1,1,31Los
+0.0023,608.15,solvus,0.0006,0,FCC_A1,1,31Los
+0.0059,768.15,solvus,0.0006,0,FCC_A1,1,31Los
+0.0105,813.15,solvus,0.0006,0,FCC_A1,1,31Los
+0.0168,849.15,solvus,0.0006,0,FCC_A1,1,31Los
+0.0021,573.15,solvus,0.0006,0,FCC_A1,1,42Tre
+0.0028,623.15,solvus,0.0006,0,FCC_A1,1,42Tre
+0.0037,673.15,solvus,0.0006,0,FCC_A1,1,42Tre
+0.005,723.15,solvus,0.0006,0,FCC_A1,1,42Tre
+0.0077,773.15,solvus,0.0006,0,FCC_A1,1,42Tre
+0.0115,823.15,solvus,0.0006,0,FCC_A1,1,42Tre
+0.0015,660.15,solvus,0.0006,0,FCC_A1,1,42Bor
+0.0034,708.15,solvus,0.0006,0,FCC_A1,1,42Bor
+0.0041,723.15,solvus,0.0006,0,FCC_A1,1,42Bor
+0.0092,799.15,solvus,0.0006,0,FCC_A1,1,42Bor
+0.0132,834.15,solvus,0.0006,0,FCC_A1,1,42Bor
+0.0136,840.15,solvus,0.0006,0,FCC_A1,1,42Bor
+0.0008,573.15,solvus,0.0006,0,FCC_A1,1,40Dur
+0.0016,623.15,solvus,0.0006,0,FCC_A1,1,40Dur
+0.003,673.15,solvus,0.0006,0,FCC_A1,1,40Dur
+0.0055,723.15,solvus,0.0006,0,FCC_A1,1,40Dur
+0.0087,773.15,solvus,0.0006,0,FCC_A1,1,40Dur
+0.0135,823.15,solvus,0.0006,0,FCC_A1,1,40Dur
+0.016,850.15,solvus,0.0006,0,FCC_A1,1,40Dur
+0.0072,896.15,solidus,0.0006,0,FCC_A1,1,26Ota
+0.011,881.15,solidus,0.0006,0,FCC_A1,1,26Ota
+0.0035,908.15,solidus,0.0006,0,FCC_A1,1,28Dix
+0.007,895.15,solidus,0.0006,0,FCC_A1,1,28Dix
+0.0106,865.15,solidus,0.0006,0,FCC_A1,1,28Dix
+0.005,908.15,solidus,0.0006,0,FCC_A1,1,29Ana
+0.0076,896.15,solidus,0.0006,0,FCC_A1,1,29Ana
+0.0097,883.15,solidus,0.0006,0,FCC_A1,1,29Ana
+0.0122,868.15,solidus,0.0006,0,FCC_A1,1,29Ana
+0.001,917.15,solidus,0.0006,0,FCC_A1,1,47Sin
+0.0019,914.15,solidus,0.0006,0,FCC_A1,1,47Sin
+0.0067,894.15,solidus,0.0006,0,FCC_A1,1,47Sin
+0.0106,877.15,solidus,0.0006,0,FCC_A1,1,47Sin
+0.0154,851.15,solidus,0.0006,0,FCC_A1,1,47Sin
+0.0006,925.15,solidus,0.0006,0,FCC_A1,1,61Gla
+0.0029,913.15,solidus,0.0006,0,FCC_A1,1,61Gla
+0.0074,890.15,solidus,0.0006,0,FCC_A1,1,61Gla
+0.0096,873.15,solidus,0.0006,0,FCC_A1,1,61Gla
+0.0118,863.15,solidus,0.0006,0,FCC_A1,1,61Gla
+0.0144,852.15,solidus,0.0006,0,FCC_A1,1,61Gla
